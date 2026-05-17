@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trigonometrie — BLF Mathe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="blf-container" id="app"></div>
+
+<script>
+const THEMA_KEY = '05-trigonometrie';
+const THEMA_CONFIG = { name: 'Trigonometrie', nummer: '05', bereich: 'geometrie & funktionen' };
+
+const KARTEN = [
+    {
+        id: 1, hilfsmittelfrei: true,
+        vorderseite: 'Sinus, Kosinus, Tangens im rechtwinkligen Dreieck',
+        rueckseite: '\\(\\sin \\alpha = \\dfrac{\\text{Gegenkathete}}{\\text{Hypotenuse}}\\)<br>\\(\\cos \\alpha = \\dfrac{\\text{Ankathete}}{\\text{Hypotenuse}}\\)<br>\\(\\tan \\alpha = \\dfrac{\\text{Gegenkathete}}{\\text{Ankathete}}\\)<br><em>Merksatz: GAGA-Hummel-AG.</em>'
+    },
+    {
+        id: 2, hilfsmittelfrei: true,
+        vorderseite: 'Wichtige Funktionswerte (auswendig)',
+        rueckseite: '\\(\\sin 0° = 0\\), \\(\\sin 30° = \\tfrac{1}{2}\\), \\(\\sin 45° = \\tfrac{\\sqrt{2}}{2}\\), \\(\\sin 60° = \\tfrac{\\sqrt{3}}{2}\\), \\(\\sin 90° = 1\\).<br>\\(\\cos 0° = 1\\), \\(\\cos 30° = \\tfrac{\\sqrt{3}}{2}\\), \\(\\cos 45° = \\tfrac{\\sqrt{2}}{2}\\), \\(\\cos 60° = \\tfrac{1}{2}\\), \\(\\cos 90° = 0\\).'
+    },
+    {
+        id: 3,
+        vorderseite: 'Sinussatz — wann?',
+        rueckseite: 'In <strong>beliebigen</strong> Dreiecken: \\(\\dfrac{a}{\\sin \\alpha} = \\dfrac{b}{\\sin \\beta} = \\dfrac{c}{\\sin \\gamma}\\).<br>Nutzbar wenn: SsW oder WSW gegeben.'
+    },
+    {
+        id: 4,
+        vorderseite: 'Kosinussatz — wann?',
+        rueckseite: 'In <strong>beliebigen</strong> Dreiecken: \\(c^2 = a^2 + b^2 - 2ab \\cos \\gamma\\).<br>Nutzbar wenn: SWS oder SSS gegeben (Verallgemeinerung von Pythagoras).'
+    },
+    {
+        id: 5, hilfsmittelfrei: true,
+        vorderseite: 'Sinusfunktion \\(f(x) = \\sin(x)\\) — Eigenschaften',
+        rueckseite: '<strong>Periode</strong>: \\(360°\\) (bzw. \\(2\\pi\\)).<br><strong>Wertebereich</strong>: \\([-1; 1]\\).<br><strong>Nullstellen</strong>: \\(0°, 180°, 360°, \\dots\\) (allg. \\(k \\cdot 180°\\)).<br>Maxima bei \\(90° + k\\cdot 360°\\), Minima bei \\(270° + k\\cdot 360°\\).'
+    },
+    {
+        id: 6, hilfsmittelfrei: true,
+        vorderseite: 'Parameter in \\(f(x) = a \\cdot \\sin(b(x - d)) + e\\)',
+        rueckseite: '<strong>\\(a\\)</strong>: Amplitude (Streckung in y).<br><strong>\\(b\\)</strong>: Periodenstauchung — neue Periode \\(= \\dfrac{360°}{|b|}\\).<br><strong>\\(d\\)</strong>: Phasenverschiebung in x-Richtung.<br><strong>\\(e\\)</strong>: Verschiebung in y-Richtung.'
+    },
+    {
+        id: 7, hilfsmittelfrei: true,
+        vorderseite: 'Verhältnis Sinus ↔ Kosinus',
+        rueckseite: '\\(\\sin(90° - \\alpha) = \\cos(\\alpha)\\) (Komplementärwinkel).<br>Kosinus = Sinus, um \\(90°\\) verschoben: \\(\\cos(x) = \\sin(x + 90°)\\).'
+    },
+    {
+        id: 8, hilfsmittelfrei: true,
+        vorderseite: 'Pythagoras der Trigonometrie',
+        rueckseite: '\\(\\sin^2(\\alpha) + \\cos^2(\\alpha) = 1\\) (für jeden Winkel).<br>Nützlich zum Umrechnen zwischen \\(\\sin\\) und \\(\\cos\\).'
+    },
+    {
+        id: 9,
+        vorderseite: 'Tangensfunktion — wo Polstellen?',
+        rueckseite: '\\(\\tan(x) = \\dfrac{\\sin x}{\\cos x}\\). Polstellen bei \\(x = 90° + k \\cdot 180°\\) (Nenner = 0).<br>Periode: \\(180°\\).'
+    },
+    {
+        id: 10,
+        vorderseite: 'Wann Sinussatz, wann Kosinussatz?',
+        rueckseite: '<strong>Sinussatz</strong>: wenn Winkel und gegenüberliegende Seiten vorkommen (z.B. WSW, SsW).<br><strong>Kosinussatz</strong>: bei SWS (zwei Seiten + eingeschlossener Winkel) oder SSS (alle Seiten).'
+    }
+];
+
+const AUFGABEN = [
+    {
+        id: 1, level: 1, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Welcher Wert ist \\(\\sin 30°\\)?',
+        optionen: ['\\(0\\)', '\\(\\tfrac{1}{2}\\)', '\\(\\tfrac{\\sqrt{3}}{2}\\)', '\\(1\\)'],
+        korrekt: 1,
+        tipp: 'Steht in der Funktionswert-Tabelle.',
+        loesungsweg: '\\(\\sin 30° = 1/2\\).'
+    },
+    {
+        id: 2, level: 1, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Welche Seite ist die Ankathete des Winkels \\(\\alpha\\) im rechtwinkligen Dreieck?',
+        optionen: ['Die Hypotenuse', 'Die Seite gegenüber von \\(\\alpha\\)', 'Die kürzere Seite anliegend an \\(\\alpha\\) (nicht Hypotenuse)', 'Die längste Seite'],
+        korrekt: 2,
+        tipp: 'An-liegende Kathete von \\(\\alpha\\).',
+        loesungsweg: 'Die Ankathete liegt am Winkel \\(\\alpha\\) an, ist aber nicht die Hypotenuse.'
+    },
+    {
+        id: 3, level: 2, typ: 'numerisch',
+        frage: 'In einem rechtwinkligen Dreieck ist die Hypotenuse \\(c = 10\\) cm und der Winkel \\(\\alpha = 30°\\). Wie lang ist die Gegenkathete \\(a\\) (in cm)?',
+        loesung: 5, toleranz: 0.05,
+        tipp: '\\(\\sin \\alpha = a/c\\), also \\(a = c \\cdot \\sin \\alpha\\).',
+        loesungsweg: '\\(a = 10 \\cdot \\sin 30° = 10 \\cdot 0{,}5 = 5\\) cm.'
+    },
+    {
+        id: 4, level: 2, typ: 'numerisch',
+        frage: 'Ankathete \\(b = 8\\), Hypotenuse \\(c = 10\\). Berechne den Winkel \\(\\alpha\\) (in Grad, auf 1 Nachkommastelle).',
+        loesung: 36.9, toleranz: 0.3,
+        tipp: '\\(\\cos \\alpha = b/c = 0{,}8\\), also \\(\\alpha = \\cos^{-1}(0{,}8)\\).',
+        loesungsweg: '\\(\\alpha = \\arccos(0{,}8) \\approx 36{,}87°\\).'
+    },
+    {
+        id: 5, level: 3, typ: 'numerisch',
+        frage: 'Rechtwinkliges Dreieck: \\(a = 4\\), \\(b = 7\\) (Katheten). Berechne den Winkel \\(\\alpha\\) gegenüber von \\(a\\) (in Grad, auf 1 NK).',
+        loesung: 29.7, toleranz: 0.3,
+        tipp: '\\(\\tan \\alpha = a/b\\).',
+        loesungsweg: '\\(\\tan \\alpha = 4/7 \\approx 0{,}571\\). \\(\\alpha \\approx 29{,}74°\\).'
+    },
+    {
+        id: 6, level: 3, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Welche Periode hat \\(f(x) = \\sin(2x)\\)?',
+        optionen: ['\\(720°\\)', '\\(360°\\)', '\\(180°\\)', '\\(90°\\)'],
+        korrekt: 2,
+        tipp: 'Periode \\(= 360°/|b|\\) bei \\(b = 2\\).',
+        loesungsweg: '\\(360°/2 = 180°\\).'
+    },
+    {
+        id: 7, level: 4, typ: 'numerisch',
+        frage: 'Sinussatz: Im Dreieck ist \\(\\alpha = 40°\\), \\(\\beta = 60°\\), \\(a = 7\\) cm. Berechne \\(b\\) in cm (auf 2 NK).',
+        loesung: 9.43, toleranz: 0.1,
+        tipp: '\\(b = a \\cdot \\dfrac{\\sin \\beta}{\\sin \\alpha}\\).',
+        loesungsweg: '\\(b = 7 \\cdot \\dfrac{\\sin 60°}{\\sin 40°} \\approx 7 \\cdot \\dfrac{0{,}866}{0{,}643} \\approx 9{,}43\\) cm.'
+    },
+    {
+        id: 8, level: 4, typ: 'numerisch',
+        frage: 'Kosinussatz: \\(a = 5\\), \\(b = 7\\), \\(\\gamma = 60°\\). Berechne \\(c\\) (auf 2 NK).',
+        loesung: 6.24, toleranz: 0.1,
+        tipp: '\\(c^2 = a^2 + b^2 - 2ab \\cos \\gamma\\).',
+        loesungsweg: '\\(c^2 = 25 + 49 - 2 \\cdot 5 \\cdot 7 \\cdot 0{,}5 = 74 - 35 = 39\\). \\(c = \\sqrt{39} \\approx 6{,}24\\).'
+    },
+    {
+        id: 9, level: 5, typ: 'numerisch',
+        frage: 'Maximum von \\(f(x) = 3 \\sin x\\) auf \\([0°; 360°]\\)?',
+        loesung: 3, toleranz: 0,
+        tipp: 'Amplitude \\(a = 3\\) — Maximum ist \\(a\\) (für \\(x = 90°\\)).',
+        loesungsweg: 'Sinus erreicht max. 1 bei \\(x = 90°\\). \\(f(90°) = 3 \\cdot 1 = 3\\).'
+    },
+    {
+        id: 10, level: 5, typ: 'mc',
+        frage: 'Welcher Term beschreibt eine Sinusfunktion mit Amplitude 2, Periode \\(180°\\) und y-Verschiebung +1?',
+        optionen: [
+            '\\(f(x) = 2 \\sin(2x) + 1\\)',
+            '\\(f(x) = 2 \\sin(x/2) + 1\\)',
+            '\\(f(x) = \\sin(2x) + 2\\)',
+            '\\(f(x) = 2 \\sin(x) + 180\\)'
+        ],
+        korrekt: 0,
+        tipp: 'Periode \\(180°\\) → \\(b = 2\\). Amplitude → \\(a = 2\\). y-Verschiebung → \\(+1\\).',
+        loesungsweg: '\\(a = 2\\), \\(b = 360°/180° = 2\\), \\(e = +1\\): \\(f(x) = 2 \\sin(2x) + 1\\).'
+    },
+    {
+        id: 11, level: 6, typ: 'numerisch',
+        frage: 'Allgemeines Dreieck: \\(a = 6\\), \\(b = 8\\), \\(c = 10\\). Berechne den Winkel \\(\\gamma\\) (gegenüber von \\(c\\), in Grad).',
+        loesung: 90, toleranz: 0.3,
+        tipp: 'Kosinussatz nach \\(\\cos \\gamma\\) auflösen: \\(\\cos \\gamma = \\dfrac{a^2+b^2-c^2}{2ab}\\).',
+        loesungsweg: '\\(\\cos \\gamma = \\dfrac{36 + 64 - 100}{96} = 0\\). \\(\\gamma = 90°\\). (Pythagoreisches Dreieck 6-8-10.)'
+    },
+    {
+        id: 12, level: 6, typ: 'numerisch',
+        frage: 'Höhe eines Turms: Aus 50 m Entfernung sieht man die Spitze unter einem Höhenwinkel von \\(35°\\). Wie hoch ist der Turm in m (auf 1 NK)?',
+        loesung: 35, toleranz: 0.5,
+        tipp: '\\(\\tan 35° = h/50\\).',
+        loesungsweg: '\\(h = 50 \\cdot \\tan 35° \\approx 50 \\cdot 0{,}7002 \\approx 35{,}0\\) m.'
+    }
+];
+</script>
+<script src="../engine.js"></script>
+<script src="../cards.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

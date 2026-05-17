@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arithmetik & Terme — BLF Mathe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="blf-container" id="app"></div>
+
+<script>
+const THEMA_KEY = '01-arithmetik';
+const THEMA_CONFIG = { name: 'Arithmetik & Terme', nummer: '01', bereich: 'hilfsmittelfrei' };
+
+const KARTEN = [
+    {
+        id: 1, hilfsmittelfrei: true,
+        vorderseite: 'Wie addierst du Brüche mit unterschiedlichen Nennern?',
+        rueckseite: 'Zuerst auf gemeinsamen Nenner bringen (Hauptnenner = kgV der Nenner), dann Zähler addieren, Nenner beibehalten.<br>Beispiel: \\(\\frac{1}{4} + \\frac{1}{6} = \\frac{3}{12} + \\frac{2}{12} = \\frac{5}{12}\\)'
+    },
+    {
+        id: 2, hilfsmittelfrei: true,
+        vorderseite: 'Wie multipliziert man Brüche?',
+        rueckseite: '<strong>Zähler · Zähler / Nenner · Nenner</strong> — vorher kürzen, wenn möglich.<br>\\(\\frac{a}{b} \\cdot \\frac{c}{d} = \\frac{a \\cdot c}{b \\cdot d}\\)'
+    },
+    {
+        id: 3, hilfsmittelfrei: true,
+        vorderseite: 'Wie dividiert man Brüche?',
+        rueckseite: '<strong>Mit dem Kehrwert des zweiten Bruchs multiplizieren.</strong><br>\\(\\frac{a}{b} : \\frac{c}{d} = \\frac{a}{b} \\cdot \\frac{d}{c} = \\frac{a \\cdot d}{b \\cdot c}\\)'
+    },
+    {
+        id: 4, hilfsmittelfrei: true,
+        vorderseite: 'Potenzgesetz: \\(a^n \\cdot a^m = ?\\)',
+        rueckseite: '\\(a^n \\cdot a^m = a^{n+m}\\)<br>Gleiche Basis → Exponenten addieren.<br>Beispiel: \\(2^3 \\cdot 2^4 = 2^7 = 128\\)'
+    },
+    {
+        id: 5, hilfsmittelfrei: true,
+        vorderseite: 'Potenzgesetz: \\(\\dfrac{a^n}{a^m} = ?\\) (mit \\(a \\neq 0\\))',
+        rueckseite: '\\(\\dfrac{a^n}{a^m} = a^{n-m}\\)<br>Gleiche Basis → Exponenten subtrahieren.<br>Beispiel: \\(\\dfrac{5^7}{5^2} = 5^5 = 3125\\)'
+    },
+    {
+        id: 6, hilfsmittelfrei: true,
+        vorderseite: 'Potenzgesetz: \\((a^n)^m = ?\\)',
+        rueckseite: '\\((a^n)^m = a^{n \\cdot m}\\)<br>Potenz einer Potenz → Exponenten multiplizieren.<br>Beispiel: \\((2^3)^4 = 2^{12} = 4096\\)'
+    },
+    {
+        id: 7, hilfsmittelfrei: true,
+        vorderseite: 'Was bedeutet \\(a^{-n}\\) und \\(a^0\\) (mit \\(a \\neq 0\\))?',
+        rueckseite: '\\(a^{-n} = \\dfrac{1}{a^n}\\) (Kehrwert) und \\(a^0 = 1\\).<br>Beispiel: \\(3^{-2} = \\dfrac{1}{9}\\)'
+    },
+    {
+        id: 8, hilfsmittelfrei: true,
+        vorderseite: 'Wie hängen Wurzel und Potenz zusammen?',
+        rueckseite: '\\(\\sqrt[n]{a} = a^{1/n}\\) und \\(\\sqrt{a} = a^{1/2}\\).<br>Damit gelten <strong>alle Potenzgesetze auch für Wurzeln</strong>.'
+    },
+    {
+        id: 9, hilfsmittelfrei: true,
+        vorderseite: 'Was ist \\(\\log_a(b)\\)?',
+        rueckseite: '\\(\\log_a(b) = c\\) bedeutet \\(a^c = b\\).<br>Beispiel: \\(\\log_2(8) = 3\\), weil \\(2^3 = 8\\).<br>Spezial: \\(\\log_a(a) = 1\\), \\(\\log_a(1) = 0\\).'
+    },
+    {
+        id: 10, hilfsmittelfrei: true,
+        vorderseite: 'Logarithmusgesetze: Produkt, Quotient, Potenz',
+        rueckseite: '\\(\\log(a \\cdot b) = \\log a + \\log b\\)<br>\\(\\log\\dfrac{a}{b} = \\log a - \\log b\\)<br>\\(\\log(a^n) = n \\cdot \\log a\\)'
+    },
+    {
+        id: 11, hilfsmittelfrei: true,
+        vorderseite: '1. Binomische Formel: \\((a+b)^2 = ?\\)',
+        rueckseite: '\\((a+b)^2 = a^2 + 2ab + b^2\\)<br>Beispiel: \\((x+3)^2 = x^2 + 6x + 9\\)'
+    },
+    {
+        id: 12, hilfsmittelfrei: true,
+        vorderseite: '2. Binomische Formel: \\((a-b)^2 = ?\\)',
+        rueckseite: '\\((a-b)^2 = a^2 - 2ab + b^2\\)<br>Beispiel: \\((x-5)^2 = x^2 - 10x + 25\\)'
+    },
+    {
+        id: 13, hilfsmittelfrei: true,
+        vorderseite: '3. Binomische Formel: \\((a+b)(a-b) = ?\\)',
+        rueckseite: '\\((a+b)(a-b) = a^2 - b^2\\)<br>Beispiel: \\((x+4)(x-4) = x^2 - 16\\)'
+    },
+    {
+        id: 14,
+        vorderseite: 'pq-Formel: Lösungen von \\(x^2 + px + q = 0\\)',
+        rueckseite: '\\(x_{1,2} = -\\dfrac{p}{2} \\pm \\sqrt{\\left(\\dfrac{p}{2}\\right)^2 - q}\\)<br>Diskriminante \\(D = (p/2)^2 - q\\):<br>\\(D > 0\\): zwei Lösungen · \\(D = 0\\): eine · \\(D < 0\\): keine reelle.'
+    },
+    {
+        id: 15,
+        vorderseite: 'abc-Formel (Mitternachtsformel): \\(ax^2 + bx + c = 0\\)',
+        rueckseite: '\\(x_{1,2} = \\dfrac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\\)<br>Diskriminante \\(D = b^2 - 4ac\\) entscheidet über Lösungsanzahl.'
+    }
+];
+
+const AUFGABEN = [
+    // LEVEL 1 — Bruchrechnung Basis
+    {
+        id: 1, level: 1, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Berechne: \\(\\dfrac{1}{2} + \\dfrac{1}{4}\\). Gib das Ergebnis als Dezimalzahl an.',
+        loesung: 0.75, toleranz: 0.001,
+        tipp: 'Bringe beide Brüche auf den Nenner 4.',
+        loesungsweg: '\\(\\dfrac{1}{2} + \\dfrac{1}{4} = \\dfrac{2}{4} + \\dfrac{1}{4} = \\dfrac{3}{4} = 0{,}75\\).'
+    },
+    {
+        id: 2, level: 1, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Wie viel ist \\(\\dfrac{2}{3} \\cdot \\dfrac{3}{4}\\)?',
+        optionen: ['\\(\\dfrac{1}{2}\\)', '\\(\\dfrac{5}{12}\\)', '\\(\\dfrac{5}{7}\\)', '\\(\\dfrac{6}{7}\\)'],
+        korrekt: 0,
+        tipp: 'Zähler mal Zähler, Nenner mal Nenner — und kürzen.',
+        loesungsweg: '\\(\\dfrac{2}{3} \\cdot \\dfrac{3}{4} = \\dfrac{2 \\cdot 3}{3 \\cdot 4} = \\dfrac{6}{12} = \\dfrac{1}{2}\\).'
+    },
+
+    // LEVEL 2 — Potenzen Basis
+    {
+        id: 3, level: 2, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Berechne: \\(2^3 \\cdot 2^4\\).',
+        loesung: 128, toleranz: 0,
+        tipp: 'Gleiche Basis → Exponenten addieren: \\(2^{3+4} = 2^7\\).',
+        loesungsweg: '\\(2^3 \\cdot 2^4 = 2^{7} = 128\\).'
+    },
+    {
+        id: 4, level: 2, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Was ist \\((3^2)^3\\)?',
+        optionen: ['\\(3^5 = 243\\)', '\\(3^6 = 729\\)', '\\(3^8 = 6561\\)', '\\(9^3 = 729\\) (auch korrekt)'],
+        korrekt: 1,
+        tipp: 'Potenz von Potenz: Exponenten multiplizieren.',
+        loesungsweg: '\\((3^2)^3 = 3^{2 \\cdot 3} = 3^6 = 729\\). Option D ist rechnerisch gleich, aber die Aufgabe fragte nach der Form mit Basis 3.'
+    },
+
+    // LEVEL 3 — Termumformung & negative Exponenten
+    {
+        id: 5, level: 3, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Berechne: \\(4^{-2}\\) als Dezimalzahl.',
+        loesung: 0.0625, toleranz: 0.0001,
+        tipp: '\\(a^{-n} = 1/a^n\\).',
+        loesungsweg: '\\(4^{-2} = \\dfrac{1}{4^2} = \\dfrac{1}{16} = 0{,}0625\\).'
+    },
+    {
+        id: 6, level: 3, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Vereinfache: \\((x+5)^2\\).',
+        optionen: [
+            '\\(x^2 + 25\\)',
+            '\\(x^2 + 10x + 25\\)',
+            '\\(x^2 + 5x + 25\\)',
+            '\\(x^2 - 10x + 25\\)'
+        ],
+        korrekt: 1,
+        tipp: '1. Binomische Formel: \\((a+b)^2 = a^2 + 2ab + b^2\\).',
+        loesungsweg: '\\((x+5)^2 = x^2 + 2 \\cdot x \\cdot 5 + 5^2 = x^2 + 10x + 25\\).'
+    },
+
+    // LEVEL 4 — Wurzeln & gemischte Potenzgesetze
+    {
+        id: 7, level: 4, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Berechne: \\(\\sqrt{50} \\cdot \\sqrt{2}\\).',
+        loesung: 10, toleranz: 0,
+        tipp: '\\(\\sqrt{a} \\cdot \\sqrt{b} = \\sqrt{a \\cdot b}\\).',
+        loesungsweg: '\\(\\sqrt{50} \\cdot \\sqrt{2} = \\sqrt{50 \\cdot 2} = \\sqrt{100} = 10\\).'
+    },
+    {
+        id: 8, level: 4, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Vereinfache: \\((a+3)(a-3)\\).',
+        optionen: ['\\(a^2 - 9\\)', '\\(a^2 + 9\\)', '\\(a^2 - 6a + 9\\)', '\\(a^2 - 6\\)'],
+        korrekt: 0,
+        tipp: '3. Binomische Formel: \\((a+b)(a-b) = a^2 - b^2\\).',
+        loesungsweg: '\\((a+3)(a-3) = a^2 - 3^2 = a^2 - 9\\).'
+    },
+
+    // LEVEL 5 — Logarithmen
+    {
+        id: 9, level: 5, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Berechne: \\(\\log_2(32)\\).',
+        loesung: 5, toleranz: 0,
+        tipp: 'Frage: \\(2^? = 32\\).',
+        loesungsweg: '\\(2^5 = 32\\), also \\(\\log_2(32) = 5\\).'
+    },
+    {
+        id: 10, level: 5, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Berechne: \\(\\log_3(81) + \\log_3(9)\\).',
+        loesung: 6, toleranz: 0,
+        tipp: 'Erst beide einzeln, dann addieren — oder Logarithmen­gesetz \\(\\log a + \\log b = \\log(ab)\\).',
+        loesungsweg: '\\(\\log_3 81 = 4\\) (weil \\(3^4 = 81\\)), \\(\\log_3 9 = 2\\). Summe: \\(4 + 2 = 6\\).'
+    },
+
+    // LEVEL 6 — Komplexere Termumformungen / pq-Formel
+    {
+        id: 11, level: 6, typ: 'numerisch',
+        frage: 'Löse die Gleichung: \\(x^2 - 6x + 8 = 0\\). Gib die <strong>größere</strong> Lösung an.',
+        loesung: 4, toleranz: 0,
+        tipp: 'pq-Formel mit \\(p = -6\\), \\(q = 8\\): \\(x_{1,2} = 3 \\pm \\sqrt{9 - 8}\\).',
+        loesungsweg: '\\(x_{1,2} = 3 \\pm \\sqrt{9-8} = 3 \\pm 1\\), also \\(x_1 = 4\\), \\(x_2 = 2\\). Größer: \\(4\\).'
+    },
+    {
+        id: 12, level: 6, typ: 'mc',
+        frage: 'Welche der folgenden Terme sind äquivalent zu \\(\\dfrac{x^2 - 25}{x + 5}\\) (für \\(x \\neq -5\\))?',
+        optionen: ['\\(x - 5\\)', '\\(x + 5\\)', '\\(x^2 - 5\\)', '\\(x - 25\\)'],
+        korrekt: 0,
+        tipp: '3. Binomische Formel im Zähler: \\(x^2 - 25 = (x-5)(x+5)\\).',
+        loesungsweg: '\\(\\dfrac{x^2-25}{x+5} = \\dfrac{(x-5)(x+5)}{x+5} = x - 5\\) (für \\(x \\neq -5\\)).'
+    }
+];
+</script>
+<script src="../engine.js"></script>
+<script src="../cards.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Potenz- & Exponentialfunktionen — BLF Mathe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="blf-container" id="app"></div>
+
+<script>
+const THEMA_KEY = '04-exp-pot-funktionen';
+const THEMA_CONFIG = { name: 'Potenz- & Exponentialfunktionen', nummer: '04', bereich: 'funktionen' };
+
+const KARTEN = [
+    {
+        id: 1, hilfsmittelfrei: true,
+        vorderseite: 'Was ist eine Potenzfunktion?',
+        rueckseite: '\\(f(x) = a \\cdot x^n\\) mit festem Exponenten \\(n\\) und Variable als <strong>Basis</strong>.<br>Beispiel: \\(f(x) = x^3\\), \\(g(x) = x^{1/2} = \\sqrt{x}\\).'
+    },
+    {
+        id: 2, hilfsmittelfrei: true,
+        vorderseite: 'Was ist eine Exponentialfunktion?',
+        rueckseite: '\\(f(x) = a \\cdot b^x\\) mit festem \\(b > 0\\), \\(b \\neq 1\\), und Variable als <strong>Exponent</strong>.<br>Beispiel: \\(f(x) = 3 \\cdot 2^x\\). Wichtige Basis: \\(e \\approx 2{,}718\\).'
+    },
+    {
+        id: 3, hilfsmittelfrei: true,
+        vorderseite: 'Eigenschaften von \\(f(x) = b^x\\) für \\(b > 1\\)',
+        rueckseite: 'Streng <strong>monoton wachsend</strong>, immer positiv, \\(f(0) = 1\\), waagerechte Asymptote y = 0 (für \\(x \\to -\\infty\\)).<br>Beispiel: \\(f(x) = 2^x\\).'
+    },
+    {
+        id: 4, hilfsmittelfrei: true,
+        vorderseite: 'Eigenschaften von \\(f(x) = b^x\\) für \\(0 < b < 1\\)',
+        rueckseite: 'Streng <strong>monoton fallend</strong>, immer positiv, \\(f(0) = 1\\), Asymptote y = 0 (für \\(x \\to +\\infty\\)).<br>Beispiel: \\(f(x) = (1/2)^x\\).'
+    },
+    {
+        id: 5,
+        vorderseite: 'Exponentielles Wachstum: \\(N(t) = N_0 \\cdot q^t\\)',
+        rueckseite: '\\(N_0\\) = Startwert, \\(q\\) = Wachstumsfaktor.<br><strong>Wachstum</strong>: \\(q > 1\\) (z.B. \\(q = 1{,}05\\) bei 5 % Wachstum).<br><strong>Zerfall</strong>: \\(0 < q < 1\\) (z.B. \\(q = 0{,}95\\) bei 5 % Abnahme).'
+    },
+    {
+        id: 6,
+        vorderseite: 'Wachstumsfaktor aus Prozentsatz \\(p\\)',
+        rueckseite: '<strong>Zunahme um \\(p\\%\\):</strong> \\(q = 1 + \\dfrac{p}{100}\\)<br><strong>Abnahme um \\(p\\%\\):</strong> \\(q = 1 - \\dfrac{p}{100}\\)<br>Beispiel: +3 % → \\(q = 1{,}03\\); -7 % → \\(q = 0{,}93\\).'
+    },
+    {
+        id: 7,
+        vorderseite: 'Halbwertszeit \\(T_H\\)',
+        rueckseite: 'Zeit, in der die Hälfte zerfällt: \\(q^{T_H} = 0{,}5\\) ⇒ \\(T_H = \\dfrac{\\log 0{,}5}{\\log q}\\).<br>Analog: <strong>Verdopplungszeit</strong> \\(T_V\\) mit \\(q^{T_V} = 2\\).'
+    },
+    {
+        id: 8, hilfsmittelfrei: true,
+        vorderseite: 'Lineares vs. exponentielles Wachstum — Unterschied?',
+        rueckseite: '<strong>Linear:</strong> in gleichen Zeiten gleiche absolute Veränderung (\\(+m\\)).<br><strong>Exponentiell:</strong> in gleichen Zeiten gleicher prozentualer Faktor (\\(\\cdot q\\)).<br>Exponentielles Wachstum überholt jedes lineare langfristig.'
+    },
+    {
+        id: 9,
+        vorderseite: 'Logarithmus als Umkehrung der Exponentialfunktion',
+        rueckseite: '\\(b^x = y \\;\\Leftrightarrow\\; x = \\log_b y\\).<br>Zum Lösen von \\(b^x = y\\) → logarithmieren.<br>Im Taschenrechner: \\(\\log\\) (zur Basis 10), \\(\\ln\\) (zur Basis \\(e\\)).'
+    },
+    {
+        id: 10,
+        vorderseite: 'Exponentialgleichung lösen: \\(2^x = 32\\)',
+        rueckseite: '<strong>Variante A (Zahlen­paare):</strong> \\(2^5 = 32 \\Rightarrow x = 5\\).<br><strong>Variante B (Logarithmus):</strong> \\(x = \\log_2 32 = \\dfrac{\\log 32}{\\log 2} = 5\\).'
+    }
+];
+
+const AUFGABEN = [
+    {
+        id: 1, level: 1, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Berechne \\(f(3)\\) für \\(f(x) = 2^x\\).',
+        loesung: 8, toleranz: 0,
+        tipp: '\\(2^3\\).',
+        loesungsweg: '\\(f(3) = 2^3 = 8\\).'
+    },
+    {
+        id: 2, level: 1, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Welche Funktion ist eine Exponentialfunktion?',
+        optionen: ['\\(f(x) = x^3\\)', '\\(f(x) = 3^x\\)', '\\(f(x) = 3x\\)', '\\(f(x) = 3x + 1\\)'],
+        korrekt: 1,
+        tipp: 'Bei Exponentialfunktion steht das \\(x\\) im <strong>Exponenten</strong>.',
+        loesungsweg: 'Nur bei \\(3^x\\) steht \\(x\\) im Exponenten — das ist exponentiell.'
+    },
+    {
+        id: 3, level: 2, typ: 'numerisch',
+        frage: 'Ein Konto mit 1000 € wird mit 4 % p.a. verzinst. Wie viel Geld ist nach <strong>1 Jahr</strong> (in €) auf dem Konto?',
+        loesung: 1040, toleranz: 0,
+        tipp: '\\(1000 \\cdot 1{,}04\\).',
+        loesungsweg: '\\(1000 \\cdot 1{,}04 = 1040\\) €.'
+    },
+    {
+        id: 4, level: 2, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Welcher Wachstumsfaktor \\(q\\) gehört zu <strong>5 % Abnahme</strong>?',
+        optionen: ['\\(q = 1{,}05\\)', '\\(q = 0{,}95\\)', '\\(q = 0{,}05\\)', '\\(q = -1{,}05\\)'],
+        korrekt: 1,
+        tipp: '\\(q = 1 - p/100\\).',
+        loesungsweg: '\\(q = 1 - 0{,}05 = 0{,}95\\).'
+    },
+    {
+        id: 5, level: 3, typ: 'numerisch',
+        frage: 'Bakterienkultur: Start 200, verdoppelt sich pro Stunde. Wie viele nach 4 Stunden?',
+        loesung: 3200, toleranz: 0,
+        tipp: '\\(N(t) = 200 \\cdot 2^t\\), \\(t = 4\\).',
+        loesungsweg: '\\(N(4) = 200 \\cdot 2^4 = 200 \\cdot 16 = 3200\\).'
+    },
+    {
+        id: 6, level: 3, typ: 'numerisch',
+        frage: 'Ein Auto verliert pro Jahr 15 % Wert. Neupreis 20.000 €. Wie viel ist es nach 2 Jahren wert (in €, gerundet)?',
+        loesung: 14450, toleranz: 1,
+        tipp: '\\(W(t) = 20000 \\cdot 0{,}85^t\\), \\(t = 2\\).',
+        loesungsweg: '\\(20000 \\cdot 0{,}85^2 = 20000 \\cdot 0{,}7225 = 14450\\) €.'
+    },
+    {
+        id: 7, level: 4, typ: 'numerisch',
+        frage: 'Löse: \\(3^x = 81\\). Gib \\(x\\) an.',
+        loesung: 4, toleranz: 0,
+        tipp: '\\(3^? = 81\\). Probiere: \\(3^4 = 81\\).',
+        loesungsweg: '\\(3^4 = 81\\), also \\(x = 4\\). Oder \\(x = \\log_3 81 = 4\\).'
+    },
+    {
+        id: 8, level: 4, typ: 'mc',
+        frage: 'Welcher Graph wächst <strong>langfristig schneller</strong>: \\(f(x) = 100 x\\) oder \\(g(x) = 2^x\\)?',
+        optionen: [
+            '\\(f(x) = 100x\\) (linear)',
+            '\\(g(x) = 2^x\\) (exponentiell)',
+            'Beide gleich schnell',
+            'Kommt auf das \\(x\\) an'
+        ],
+        korrekt: 1,
+        tipp: 'Exponentielles Wachstum überholt jedes lineare — irgendwann.',
+        loesungsweg: 'Ab \\(x \\approx 10\\) liegt \\(2^x\\) bereits über \\(100x\\) (1024 > 1000) und der Abstand wächst rasant.'
+    },
+    {
+        id: 9, level: 5, typ: 'numerisch',
+        frage: 'Radioaktiver Stoff hat Halbwertszeit \\(T_H = 5\\) Jahre. Wie viel Prozent (auf ganze %) sind nach 15 Jahren noch vorhanden?',
+        loesung: 13, toleranz: 1,
+        tipp: '15 Jahre = 3 Halbwertszeiten → drei Mal halbiert.',
+        loesungsweg: '\\((1/2)^3 = 1/8 = 12{,}5\\,\\%\\) — gerundet ca. 13 %.'
+    },
+    {
+        id: 10, level: 5, typ: 'numerisch',
+        frage: 'Konto wächst mit \\(q = 1{,}03\\) pro Jahr. Wie viele Jahre bis Verdopplung? (Auf ganze Jahre aufrunden.)',
+        loesung: 24, toleranz: 1,
+        tipp: '\\(1{,}03^t = 2 \\Rightarrow t = \\dfrac{\\log 2}{\\log 1{,}03}\\).',
+        loesungsweg: '\\(t = \\dfrac{\\log 2}{\\log 1{,}03} \\approx \\dfrac{0{,}301}{0{,}01284} \\approx 23{,}45\\). Aufgerundet: 24 Jahre.'
+    },
+    {
+        id: 11, level: 6, typ: 'numerisch',
+        frage: 'Eine Funktion hat \\(f(0) = 5\\) und \\(f(3) = 40\\). Bestimme den Wachstumsfaktor \\(q\\), falls \\(f\\) exponentiell ist (\\(f(t) = 5 \\cdot q^t\\)). Gib \\(q\\) auf 2 Nachkommastellen an.',
+        loesung: 2, toleranz: 0.05,
+        tipp: '\\(40 = 5 \\cdot q^3 \\Rightarrow q^3 = 8\\).',
+        loesungsweg: '\\(q^3 = 8 \\Rightarrow q = \\sqrt[3]{8} = 2\\).'
+    },
+    {
+        id: 12, level: 6, typ: 'numerisch',
+        frage: 'Eine Population schrumpft jährlich um 8 %. Wann ist sie auf 25 % des Ausgangswerts geschrumpft? (Antwort in Jahren, aufgerundet.)',
+        loesung: 17, toleranz: 1,
+        tipp: '\\(0{,}92^t = 0{,}25 \\Rightarrow t = \\dfrac{\\log 0{,}25}{\\log 0{,}92}\\).',
+        loesungsweg: '\\(t = \\dfrac{\\log 0{,}25}{\\log 0{,}92} \\approx \\dfrac{-0{,}602}{-0{,}0362} \\approx 16{,}63\\). Aufgerundet: 17.'
+    }
+];
+</script>
+<script src="../engine.js"></script>
+<script src="../cards.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

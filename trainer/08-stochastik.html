@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wahrscheinlichkeit — BLF Mathe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="blf-container" id="app"></div>
+
+<script>
+const THEMA_KEY = '08-stochastik';
+const THEMA_CONFIG = { name: 'Wahrscheinlichkeit', nummer: '08', bereich: 'stochastik' };
+
+const KARTEN = [
+    {
+        id: 1, hilfsmittelfrei: true,
+        vorderseite: 'Laplace-Wahrscheinlichkeit',
+        rueckseite: '\\(P(A) = \\dfrac{\\text{Anzahl günstiger Ergebnisse}}{\\text{Anzahl möglicher Ergebnisse}}\\)<br>Voraussetzung: <strong>alle Ergebnisse gleich wahrscheinlich</strong> (Laplace-Experiment, z.B. fairer Würfel).'
+    },
+    {
+        id: 2, hilfsmittelfrei: true,
+        vorderseite: 'Eigenschaften jeder Wahrscheinlichkeit',
+        rueckseite: '\\(0 \\leq P(A) \\leq 1\\)<br>\\(P(\\Omega) = 1\\) (sicheres Ereignis)<br>\\(P(\\emptyset) = 0\\) (unmögliches Ereignis)<br>\\(P(\\overline{A}) = 1 - P(A)\\) (Gegenereignis).'
+    },
+    {
+        id: 3,
+        vorderseite: 'Baumdiagramm — Pfadregeln',
+        rueckseite: '<strong>Produktregel:</strong> Wahrscheinlichkeit eines Pfads = Produkt der Kanten­wahrscheinlichkeiten.<br><strong>Summenregel:</strong> Wahrscheinlichkeit eines Ereignisses = Summe aller passenden Pfade.'
+    },
+    {
+        id: 4,
+        vorderseite: 'Ziehen mit / ohne Zurücklegen',
+        rueckseite: '<strong>Mit Zurücklegen:</strong> Wahrscheinlichkeiten bleiben gleich (Versuche sind unabhängig).<br><strong>Ohne Zurücklegen:</strong> Wahrscheinlichkeiten ändern sich von Zug zu Zug.'
+    },
+    {
+        id: 5,
+        vorderseite: 'Bedingte Wahrscheinlichkeit \\(P_A(B)\\)',
+        rueckseite: '\\(P_A(B) = \\dfrac{P(A \\cap B)}{P(A)}\\)<br>"Wahrscheinlichkeit von B, gegeben dass A eingetreten ist."'
+    },
+    {
+        id: 6,
+        vorderseite: 'Was ist eine Zufallsgröße \\(X\\)?',
+        rueckseite: 'Eine Funktion, die jedem Ergebnis eines Zufallsexperiments eine <strong>Zahl</strong> zuordnet.<br>Beispiel: Augenzahl beim Würfeln; Anzahl Treffer bei drei Würfen.'
+    },
+    {
+        id: 7,
+        vorderseite: 'Erwartungswert \\(E(X)\\) einer diskreten Zufallsgröße',
+        rueckseite: '\\(E(X) = \\sum_i x_i \\cdot P(X = x_i)\\)<br>"Was kommt im Mittel pro Versuch heraus." Z.B. Würfel: \\(E(X) = 3{,}5\\).'
+    },
+    {
+        id: 8,
+        vorderseite: 'Faires vs. nicht faires Spiel',
+        rueckseite: '<strong>Fair</strong> ⇔ \\(E(\\text{Gewinn}) = 0\\). Wenn \\(E > 0\\), lohnt sich das Spiel; wenn \\(E < 0\\), ist es unvorteilhaft (typisch für Casino-Spiele).'
+    },
+    {
+        id: 9, hilfsmittelfrei: true,
+        vorderseite: 'Ergebnis vs. Ereignis',
+        rueckseite: '<strong>Ergebnis</strong>: ein einzelner möglicher Ausgang (z.B. "5" beim Würfel).<br><strong>Ereignis</strong>: eine Menge von Ergebnissen (z.B. "gerade Zahl" = \\(\\{2, 4, 6\\}\\)).'
+    },
+    {
+        id: 10, hilfsmittelfrei: true,
+        vorderseite: 'Vereinigung und Schnitt',
+        rueckseite: '\\(A \\cup B\\) ("A oder B"): mindestens eines tritt ein.<br>\\(A \\cap B\\) ("A und B"): beide treten ein.<br>Wenn \\(A\\) und \\(B\\) unvereinbar: \\(P(A \\cup B) = P(A) + P(B)\\).'
+    }
+];
+
+const AUFGABEN = [
+    {
+        id: 1, level: 1, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Fairer Würfel. Wahrscheinlichkeit für die Augenzahl 4 als Bruch (Dezimalzahl, auf 3 NK)?',
+        loesung: 0.167, toleranz: 0.005,
+        tipp: 'Laplace: 1 von 6 günstig.',
+        loesungsweg: '\\(P = 1/6 \\approx 0{,}167\\).'
+    },
+    {
+        id: 2, level: 1, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Fairer Würfel. Wahrscheinlichkeit für "gerade Zahl"?',
+        optionen: ['\\(1/6\\)', '\\(1/3\\)', '\\(1/2\\)', '\\(2/3\\)'],
+        korrekt: 2,
+        tipp: 'Gerade Zahlen: 2, 4, 6 — also 3 von 6.',
+        loesungsweg: '\\(P = 3/6 = 1/2\\).'
+    },
+    {
+        id: 3, level: 2, typ: 'numerisch',
+        frage: 'Beutel: 5 rote, 3 blaue Kugeln. Eine Kugel wird gezogen. \\(P(\\text{rot})\\) als Dezimalzahl (auf 3 NK)?',
+        loesung: 0.625, toleranz: 0.005,
+        tipp: '5 von 8.',
+        loesungsweg: '\\(P = 5/8 = 0{,}625\\).'
+    },
+    {
+        id: 4, level: 2, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: '\\(P(A) = 0{,}3\\). Wahrscheinlichkeit des Gegenereignisses \\(P(\\overline{A})\\)?',
+        loesung: 0.7, toleranz: 0,
+        tipp: '\\(P(\\overline{A}) = 1 - P(A)\\).',
+        loesungsweg: '\\(1 - 0{,}3 = 0{,}7\\).'
+    },
+    {
+        id: 5, level: 3, typ: 'numerisch',
+        frage: 'Münze wird 2x geworfen. Wahrscheinlichkeit, dass <strong>zweimal Kopf</strong> fällt (als Dezimalzahl)?',
+        loesung: 0.25, toleranz: 0,
+        tipp: 'Pfadregel: \\(0{,}5 \\cdot 0{,}5\\).',
+        loesungsweg: '\\(P(\\text{KK}) = 0{,}5 \\cdot 0{,}5 = 0{,}25\\).'
+    },
+    {
+        id: 6, level: 3, typ: 'numerisch',
+        frage: 'Urne: 4 rote, 6 blaue Kugeln. Es wird <strong>zweimal ohne Zurücklegen</strong> gezogen. \\(P(\\text{2x rot})\\)? (Dezimal, auf 3 NK.)',
+        loesung: 0.133, toleranz: 0.005,
+        tipp: 'Erst \\(4/10\\), dann \\(3/9\\) (eine rote weg).',
+        loesungsweg: '\\(P = \\dfrac{4}{10} \\cdot \\dfrac{3}{9} = \\dfrac{12}{90} = \\dfrac{2}{15} \\approx 0{,}133\\).'
+    },
+    {
+        id: 7, level: 4, typ: 'numerisch',
+        frage: 'Beutel: 10 blaue, 7 gelbe, 3 rote (BLF-2024-ähnlich, gesamt 20). Eine Kugel wird gezogen. \\(P(\\text{rot oder gelb})\\) als Dezimalzahl?',
+        loesung: 0.5, toleranz: 0.001,
+        tipp: 'Unvereinbare Ereignisse: addieren.',
+        loesungsweg: '\\(P = \\dfrac{7+3}{20} = \\dfrac{10}{20} = 0{,}5\\).'
+    },
+    {
+        id: 8, level: 4, typ: 'numerisch',
+        frage: 'Würfel: \\(X\\) = Augenzahl. Erwartungswert \\(E(X)\\)?',
+        loesung: 3.5, toleranz: 0,
+        tipp: '\\(E(X) = \\tfrac{1}{6}(1+2+3+4+5+6) = 21/6\\).',
+        loesungsweg: '\\(E(X) = (1+2+3+4+5+6)/6 = 21/6 = 3{,}5\\).'
+    },
+    {
+        id: 9, level: 5, typ: 'numerisch',
+        frage: 'Glücksspiel: Wahrscheinlichkeit 1/4 für 8 € Gewinn, sonst 1 € Einsatz verloren. Erwartungswert pro Spiel (in €, signiert)?',
+        loesung: 1.25, toleranz: 0.01,
+        tipp: '\\(E = 0{,}25 \\cdot 8 + 0{,}75 \\cdot (-1)\\).',
+        loesungsweg: '\\(E = 2 - 0{,}75 = 1{,}25\\) €. Spiel ist <strong>vorteilhaft</strong> für den Spieler.'
+    },
+    {
+        id: 10, level: 5, typ: 'numerisch',
+        frage: 'In einer Klasse sind 60 % der Schüler weiblich. 30 % der Mädchen tragen eine Brille, 20 % der Jungen. Wie viel Prozent der Klasse tragen eine Brille (auf 1 NK)?',
+        loesung: 26, toleranz: 0.5,
+        tipp: 'Pfadregel + Summenregel: \\(0{,}6 \\cdot 0{,}3 + 0{,}4 \\cdot 0{,}2\\).',
+        loesungsweg: '\\(P = 0{,}6 \\cdot 0{,}3 + 0{,}4 \\cdot 0{,}2 = 0{,}18 + 0{,}08 = 0{,}26 = 26\\%\\).'
+    },
+    {
+        id: 11, level: 6, typ: 'numerisch',
+        frage: 'Urne: 5 rote, 3 schwarze Kugeln. Zwei werden ohne Zurücklegen gezogen. \\(P(\\text{verschiedene Farben})\\) als Dezimal (auf 3 NK)?',
+        loesung: 0.536, toleranz: 0.005,
+        tipp: '"verschieden" = rot-schwarz oder schwarz-rot. Beide Pfade addieren.',
+        loesungsweg: '\\(P = \\dfrac{5}{8} \\cdot \\dfrac{3}{7} + \\dfrac{3}{8} \\cdot \\dfrac{5}{7} = \\dfrac{15}{56} + \\dfrac{15}{56} = \\dfrac{30}{56} \\approx 0{,}536\\).'
+    },
+    {
+        id: 12, level: 6, typ: 'numerisch',
+        frage: 'Test (medizinisch): Sensitivität 95 %, Spezifität 90 %. 2 % der Bevölkerung sind krank. Eine zufällige Person ist <strong>positiv</strong> getestet. \\(P(\\text{krank} | \\text{positiv})\\) (Dezimal, auf 3 NK)?',
+        loesung: 0.162, toleranz: 0.01,
+        tipp: 'Satz von Bayes: \\(P(K|+) = \\dfrac{P(K) \\cdot P(+|K)}{P(+)}\\). Nenner: \\(P(+) = 0{,}02 \\cdot 0{,}95 + 0{,}98 \\cdot 0{,}10\\).',
+        loesungsweg: 'Zähler \\(0{,}02 \\cdot 0{,}95 = 0{,}019\\). Nenner \\(0{,}019 + 0{,}098 = 0{,}117\\). \\(P(K|+) = 0{,}019 / 0{,}117 \\approx 0{,}162\\) (16,2 %). <em>Wichtige Erkenntnis: Bei seltenen Krankheiten ist selbst ein "guter" Test oft unzuverlässig.</em>'
+    }
+];
+</script>
+<script src="../engine.js"></script>
+<script src="../cards.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

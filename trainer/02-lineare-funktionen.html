@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lineare Funktionen & LGS — BLF Mathe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="blf-container" id="app"></div>
+
+<script>
+const THEMA_KEY = '02-lineare-funktionen';
+const THEMA_CONFIG = { name: 'Lineare Funktionen & LGS', nummer: '02', bereich: 'funktionen' };
+
+const KARTEN = [
+    {
+        id: 1, hilfsmittelfrei: true,
+        vorderseite: 'Allgemeine Form einer linearen Funktion',
+        rueckseite: '\\(f(x) = m \\cdot x + n\\)<br><strong>m</strong> = Steigung (Anstieg), <strong>n</strong> = y-Achsenabschnitt.<br>Graph ist immer eine <strong>Gerade</strong>.'
+    },
+    {
+        id: 2, hilfsmittelfrei: true,
+        vorderseite: 'Steigung \\(m\\) aus zwei Punkten \\(P_1(x_1|y_1)\\), \\(P_2(x_2|y_2)\\)',
+        rueckseite: '\\(m = \\dfrac{y_2 - y_1}{x_2 - x_1}\\) (Differenzenquotient)<br>Beispiel: \\(P_1(1|2)\\), \\(P_2(4|8)\\): \\(m = \\frac{8-2}{4-1} = 2\\).'
+    },
+    {
+        id: 3, hilfsmittelfrei: true,
+        vorderseite: 'Nullstelle einer linearen Funktion \\(f(x) = mx + n\\)',
+        rueckseite: 'Nullstelle: \\(f(x) = 0 \\Rightarrow x_0 = -\\dfrac{n}{m}\\) (für \\(m \\neq 0\\)).<br>Beispiel: \\(f(x) = 2x - 6\\), Nullstelle \\(x_0 = 3\\).'
+    },
+    {
+        id: 4, hilfsmittelfrei: true,
+        vorderseite: 'Wann sind zwei Geraden parallel? Wann orthogonal?',
+        rueckseite: '<strong>Parallel:</strong> gleiche Steigung \\(m_1 = m_2\\).<br><strong>Orthogonal (senkrecht):</strong> \\(m_1 \\cdot m_2 = -1\\).'
+    },
+    {
+        id: 5, hilfsmittelfrei: true,
+        vorderseite: 'Schnittpunkt zweier Geraden \\(f(x) = g(x)\\)',
+        rueckseite: 'Gleichsetzen: \\(m_1 x + n_1 = m_2 x + n_2\\), nach \\(x\\) auflösen, dann \\(y = f(x)\\) berechnen.<br>Ergibt Schnittpunkt \\(S(x|y)\\).'
+    },
+    {
+        id: 6,
+        vorderseite: 'Was ist ein lineares Gleichungssystem (LGS)?',
+        rueckseite: 'Mehrere lineare Gleichungen mit mehreren Variablen, die <strong>gleichzeitig</strong> erfüllt sein müssen.<br>Beispiel:<br>\\(2x + y = 7\\)<br>\\(x - y = 2\\)'
+    },
+    {
+        id: 7,
+        vorderseite: 'Lösungsverfahren für LGS — die drei Klassiker',
+        rueckseite: '<strong>Einsetzungs­verfahren:</strong> eine Gleichung nach einer Variablen umstellen, einsetzen.<br><strong>Gleichsetzungs­verfahren:</strong> beide nach derselben Variablen umstellen, gleichsetzen.<br><strong>Additionsverfahren:</strong> Gleichungen so verändern, dass beim Addieren eine Variable wegfällt.'
+    },
+    {
+        id: 8,
+        vorderseite: 'Lösbarkeitsfälle eines LGS mit 2 Geraden',
+        rueckseite: '<strong>1 Lösung:</strong> Geraden schneiden sich (\\(m_1 \\neq m_2\\)).<br><strong>Keine Lösung:</strong> parallel & verschieden.<br><strong>Unendlich viele Lösungen:</strong> Geraden identisch.'
+    },
+    {
+        id: 9,
+        vorderseite: 'Was sagt der y-Achsenabschnitt \\(n\\) anschaulich?',
+        rueckseite: '\\(n = f(0)\\) ist der <strong>Funktionswert an der Stelle 0</strong>, also der <strong>Schnittpunkt mit der y-Achse</strong>: \\((0|n)\\).'
+    },
+    {
+        id: 10, hilfsmittelfrei: true,
+        vorderseite: 'Punktprobe: Liegt Punkt \\(P(x_p|y_p)\\) auf \\(f\\)?',
+        rueckseite: '\\(x_p\\) in \\(f\\) einsetzen und prüfen, ob \\(f(x_p) = y_p\\).<br>Beispiel: \\(P(2|7)\\), \\(f(x) = 3x+1\\): \\(f(2) = 7\\) ✓ → P liegt auf f.'
+    }
+];
+
+const AUFGABEN = [
+    {
+        id: 1, level: 1, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Berechne \\(f(3)\\) für \\(f(x) = 2x + 1\\).',
+        loesung: 7, toleranz: 0,
+        tipp: 'Setze 3 für \\(x\\) ein.',
+        loesungsweg: '\\(f(3) = 2 \\cdot 3 + 1 = 7\\).'
+    },
+    {
+        id: 2, level: 1, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Welche Steigung hat die Gerade \\(y = -3x + 5\\)?',
+        optionen: ['\\(m = 5\\)', '\\(m = -3\\)', '\\(m = 3\\)', '\\(m = -5\\)'],
+        korrekt: 1,
+        tipp: 'In \\(y = mx + n\\) ist \\(m\\) der Faktor vor \\(x\\).',
+        loesungsweg: 'Steigung \\(m = -3\\).'
+    },
+    {
+        id: 3, level: 2, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Berechne die Steigung der Geraden durch \\(P_1(1|3)\\) und \\(P_2(5|11)\\).',
+        loesung: 2, toleranz: 0,
+        tipp: '\\(m = \\dfrac{y_2 - y_1}{x_2 - x_1}\\).',
+        loesungsweg: '\\(m = \\dfrac{11 - 3}{5 - 1} = \\dfrac{8}{4} = 2\\).'
+    },
+    {
+        id: 4, level: 2, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Bestimme die Nullstelle von \\(f(x) = 2x - 10\\).',
+        loesung: 5, toleranz: 0,
+        tipp: 'Setze \\(f(x) = 0\\).',
+        loesungsweg: '\\(2x - 10 = 0 \\Rightarrow x = 5\\).'
+    },
+    {
+        id: 5, level: 3, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Welche Geraden sind <strong>parallel</strong>?',
+        optionen: [
+            '\\(y = 2x + 1\\) und \\(y = 2x - 5\\)',
+            '\\(y = 2x + 1\\) und \\(y = -2x + 1\\)',
+            '\\(y = 3x\\) und \\(y = \\frac{1}{3}x\\)',
+            '\\(y = x + 4\\) und \\(y = 2x + 4\\)'
+        ],
+        korrekt: 0,
+        tipp: 'Parallel ⇔ gleiche Steigung.',
+        loesungsweg: 'Beide haben Steigung \\(m = 2\\) → parallel.'
+    },
+    {
+        id: 6, level: 3, typ: 'numerisch',
+        frage: 'Eine lineare Funktion hat \\(m = 3\\) und geht durch \\(P(2|5)\\). Bestimme \\(n\\) (y-Achsenabschnitt).',
+        loesung: -1, toleranz: 0,
+        tipp: '\\(y = mx + n \\Rightarrow n = y - mx\\).',
+        loesungsweg: '\\(5 = 3 \\cdot 2 + n \\Rightarrow n = 5 - 6 = -1\\). Also \\(f(x) = 3x - 1\\).'
+    },
+    {
+        id: 7, level: 4, typ: 'numerisch',
+        frage: 'Schnittpunkt von \\(f(x) = 2x + 1\\) und \\(g(x) = -x + 7\\). Gib die x-Koordinate des Schnittpunkts an.',
+        loesung: 2, toleranz: 0,
+        tipp: 'Gleichsetzen \\(f(x) = g(x)\\) und nach \\(x\\) auflösen.',
+        loesungsweg: '\\(2x + 1 = -x + 7 \\Rightarrow 3x = 6 \\Rightarrow x = 2\\). (Schnittpunkt \\(S(2|5)\\).)'
+    },
+    {
+        id: 8, level: 4, typ: 'numerisch',
+        frage: 'Löse das LGS: \\(x + y = 7\\) und \\(x - y = 3\\). Gib \\(x\\) an.',
+        loesung: 5, toleranz: 0,
+        tipp: 'Additionsverfahren: beide Gleichungen addieren ergibt \\(2x = 10\\).',
+        loesungsweg: 'Addition: \\(2x = 10 \\Rightarrow x = 5\\). Einsetzen: \\(y = 2\\).'
+    },
+    {
+        id: 9, level: 5, typ: 'mc',
+        frage: 'Welche Gerade verläuft <strong>senkrecht</strong> zu \\(y = \\tfrac{1}{2}x + 3\\)?',
+        optionen: ['\\(y = \\tfrac{1}{2}x - 5\\)', '\\(y = 2x + 1\\)', '\\(y = -2x + 1\\)', '\\(y = -\\tfrac{1}{2}x + 1\\)'],
+        korrekt: 2,
+        tipp: 'Orthogonal ⇔ \\(m_1 \\cdot m_2 = -1\\), also Kehrwert × (-1).',
+        loesungsweg: '\\(m_1 = \\tfrac{1}{2}\\), gesucht \\(m_2\\) mit \\(m_1 \\cdot m_2 = -1 \\Rightarrow m_2 = -2\\).'
+    },
+    {
+        id: 10, level: 5, typ: 'numerisch',
+        frage: 'Ein Handy­tarif kostet 5 € Grundgebühr + 0,20 € pro Minute. Gib die monatlichen Kosten in € bei 80 Minuten an.',
+        loesung: 21, toleranz: 0,
+        tipp: 'Lineare Funktion \\(K(t) = 0{,}20 \\cdot t + 5\\).',
+        loesungsweg: '\\(K(80) = 0{,}20 \\cdot 80 + 5 = 16 + 5 = 21\\) €.'
+    },
+    {
+        id: 11, level: 6, typ: 'numerisch',
+        frage: 'LGS mit drei Variablen: \\(x + y + z = 6\\), \\(x - y + z = 2\\), \\(x + y - z = 0\\). Gib \\(x\\) an.',
+        loesung: 1, toleranz: 0,
+        tipp: 'Addiere/subtrahiere Gleichungen geschickt — Gauß-artig.',
+        loesungsweg: '(I)+(III): \\(2x+2y = 6 \\Rightarrow x+y = 3\\). (I)-(II): \\(2y = 4 \\Rightarrow y = 2\\), also \\(x = 1\\), \\(z = 3\\).'
+    },
+    {
+        id: 12, level: 6, typ: 'numerisch',
+        frage: 'Eine Gerade geht durch \\(A(-2|1)\\) und \\(B(3|-9)\\). Bestimme die Nullstelle (\\(x_0\\)) der Geraden.',
+        loesung: -1.5, toleranz: 0.05,
+        tipp: 'Erst \\(m\\), dann \\(n\\), dann \\(f(x)=0\\) auflösen.',
+        loesungsweg: '\\(m = \\dfrac{-9-1}{3-(-2)} = -2\\). \\(n = 1 - (-2)(-2) = -3\\). \\(f(x) = -2x - 3 = 0 \\Rightarrow x = -1{,}5\\).'
+    }
+];
+</script>
+<script src="../engine.js"></script>
+<script src="../cards.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

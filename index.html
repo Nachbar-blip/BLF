@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLF Mathe — Thüringen Klasse 10</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <header class="uebersicht-header">
+        <h1>BLF Mathe — Thüringen</h1>
+        <p>Vorbereitung auf die Besondere Leistungsfeststellung Klasse 10</p>
+    </header>
+
+    <div class="info-box">
+        <strong>Wie funktioniert die App?</strong> Pro Thema kannst du zwischen <em>📚 Lernen</em>
+        (Karteikarten mit Leitner-Box, 5 Stufen) und <em>🧠 Üben</em> (adaptive Aufgaben, Level 1–6) wechseln.
+        Aufgaben mit dem Hinweis <span class="hilfsmittelfrei-badge">hilfsmittelfrei</span> kommen
+        in <strong>Teil A</strong> der BLF (20 BE, ohne Taschenrechner) vor — die übrigen in <strong>Teil B</strong> (40 BE, mit Hilfsmitteln).
+        Fortschritt wird im Browser gespeichert (kein Login nötig).
+    </div>
+
+    <div class="themen-grid" id="themenGrid"></div>
+</div>
+
+<script>
+const THEMEN = [
+    { nr: '01', slug: '01-arithmetik',          name: 'Arithmetik & Terme',         tag: 'hilfsmittelfrei-Schwerpunkt' },
+    { nr: '02', slug: '02-lineare-funktionen',  name: 'Lineare Funktionen & LGS',   tag: 'Funktionen' },
+    { nr: '03', slug: '03-quadratische-funktionen', name: 'Quadratische Funktionen', tag: 'Funktionen' },
+    { nr: '04', slug: '04-exp-pot-funktionen',  name: 'Potenz- & Exponentialfunktionen', tag: 'Funktionen' },
+    { nr: '05', slug: '05-trigonometrie',       name: 'Trigonometrie',              tag: 'Geometrie & Funktionen' },
+    { nr: '06', slug: '06-pythagoras-strahlen', name: 'Pythagoras & Strahlensätze', tag: 'Geometrie' },
+    { nr: '07', slug: '07-koerper',             name: 'Körperberechnung',           tag: 'Geometrie' },
+    { nr: '08', slug: '08-stochastik',          name: 'Wahrscheinlichkeit',         tag: 'Stochastik' }
+];
+
+function leseFortschritt(slug) {
+    let karten = 0, gemeistert = 0, aufgabenLevel = 0, aufgabenAttempts = 0;
+    try {
+        const cardsRaw = localStorage.getItem('blf-cards-' + slug);
+        if (cardsRaw) {
+            const data = JSON.parse(cardsRaw);
+            const ids = Object.keys(data);
+            karten = ids.length;
+            gemeistert = ids.filter(id => data[id].box === 5).length;
+        }
+        const engineRaw = localStorage.getItem('blf-engine-' + slug);
+        if (engineRaw) {
+            const s = JSON.parse(engineRaw);
+            aufgabenLevel = s.level || 0;
+            aufgabenAttempts = s.totalAttempts || 0;
+        }
+    } catch (e) { /* ignore */ }
+    return { karten, gemeistert, aufgabenLevel, aufgabenAttempts };
+}
+
+function renderThemen() {
+    const grid = document.getElementById('themenGrid');
+    grid.innerHTML = THEMEN.map(t => {
+        const f = leseFortschritt(t.slug);
+        const prozent = f.karten ? Math.round(f.gemeistert / f.karten * 100) : 0;
+        const ubMeta = f.aufgabenAttempts > 0
+            ? `Üben: Level ${f.aufgabenLevel} · ${f.aufgabenAttempts} Aufg.`
+            : 'Üben: noch nicht gestartet';
+        const lnMeta = f.karten > 0
+            ? `Lernen: ${f.gemeistert}/${f.karten} Karten gemeistert`
+            : 'Lernen: noch nicht gestartet';
+        return `
+            <a href="trainer/${t.slug}.html" class="thema-karte">
+                <span class="nr">Thema ${t.nr} · ${t.tag}</span>
+                <h3>${t.name}</h3>
+                <div class="meta">
+                    <span>${lnMeta}</span>
+                </div>
+                <div class="meta">
+                    <span>${ubMeta}</span>
+                </div>
+                <div class="fortschritt-bar"><div style="width:${prozent}%"></div></div>
+            </a>
+        `;
+    }).join('');
+}
+
+renderThemen();
+</script>
+</body>
+</html>

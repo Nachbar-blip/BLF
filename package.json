@@ -1,0 +1,14 @@
+{
+    "name": "blf-mathe",
+    "version": "1.0.0",
+    "private": true,
+    "description": "BLF Mathe Thüringen — Karteikarten + adaptiver Trainer für Klasse 10",
+    "scripts": {
+        "test": "playwright test",
+        "serve": "npx http-server -p 8088 -c-1 --silent"
+    },
+    "devDependencies": {
+        "@playwright/test": "^1.60.0",
+        "http-server": "^14.1.1"
+    }
+}

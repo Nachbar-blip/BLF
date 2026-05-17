@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pythagoras & Strahlensätze — BLF Mathe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="blf-container" id="app"></div>
+
+<script>
+const THEMA_KEY = '06-pythagoras-strahlen';
+const THEMA_CONFIG = { name: 'Pythagoras & Strahlensätze', nummer: '06', bereich: 'geometrie' };
+
+const KARTEN = [
+    {
+        id: 1, hilfsmittelfrei: true,
+        vorderseite: 'Satz des Pythagoras',
+        rueckseite: 'Im <strong>rechtwinkligen</strong> Dreieck mit Katheten \\(a, b\\) und Hypotenuse \\(c\\):<br>\\(a^2 + b^2 = c^2\\).<br><em>Achtung: \\(c\\) ist die längste Seite (gegenüber dem rechten Winkel).</em>'
+    },
+    {
+        id: 2, hilfsmittelfrei: true,
+        vorderseite: 'Kathete \\(a\\) aus \\(b\\) und \\(c\\) berechnen',
+        rueckseite: '\\(a = \\sqrt{c^2 - b^2}\\)<br>(\\(c\\) ist die Hypotenuse — also \\(c > b\\), sonst ergibt sich keine reelle Lösung.)'
+    },
+    {
+        id: 3, hilfsmittelfrei: true,
+        vorderseite: 'Umkehrung des Pythagoras-Satzes',
+        rueckseite: 'Wenn in einem Dreieck \\(a^2 + b^2 = c^2\\) gilt, dann ist es <strong>rechtwinklig</strong> (mit dem rechten Winkel gegenüber von \\(c\\)).<br>Beispiel: 3-4-5-Dreieck → \\(9+16 = 25\\) ✓ → rechtwinklig.'
+    },
+    {
+        id: 4, hilfsmittelfrei: true,
+        vorderseite: 'Diagonale eines Rechtecks (Länge \\(a\\), Breite \\(b\\))',
+        rueckseite: '\\(d = \\sqrt{a^2 + b^2}\\) (Pythagoras im Rechteck).'
+    },
+    {
+        id: 5,
+        vorderseite: 'Raumdiagonale eines Quaders (\\(a, b, c\\))',
+        rueckseite: '\\(d = \\sqrt{a^2 + b^2 + c^2}\\) (zweimaliges Pythagoras).'
+    },
+    {
+        id: 6, hilfsmittelfrei: true,
+        vorderseite: '1. Strahlensatz',
+        rueckseite: 'Bei zwei Strahlen aus einem Punkt, geschnitten von zwei <strong>parallelen</strong> Geraden:<br>\\(\\dfrac{\\overline{SA_1}}{\\overline{SA_2}} = \\dfrac{\\overline{SB_1}}{\\overline{SB_2}}\\)<br>(Abschnitte auf einem Strahl verhalten sich wie auf dem anderen.)'
+    },
+    {
+        id: 7, hilfsmittelfrei: true,
+        vorderseite: '2. Strahlensatz',
+        rueckseite: 'Parallele Abschnitte verhalten sich wie die zugehörigen Strahl-Abschnitte vom Streckungs­zentrum:<br>\\(\\dfrac{\\overline{A_1 B_1}}{\\overline{A_2 B_2}} = \\dfrac{\\overline{SA_1}}{\\overline{SA_2}}\\).'
+    },
+    {
+        id: 8,
+        vorderseite: 'Ähnlichkeit von Dreiecken — Hauptsatz',
+        rueckseite: 'Zwei Dreiecke sind <strong>ähnlich</strong>, wenn sie in zwei Winkeln übereinstimmen (oder gleichwertig: Verhältnisse aller Seiten sind gleich).<br>Bei Ähnlichkeit: entsprechende Seiten haben denselben Verhältnis­faktor \\(k\\).'
+    },
+    {
+        id: 9,
+        vorderseite: 'Höhensatz des Euklid',
+        rueckseite: 'Im rechtwinkligen Dreieck (Höhe \\(h\\) auf die Hypotenuse \\(c\\), Hypotenusen-Abschnitte \\(p, q\\)):<br>\\(h^2 = p \\cdot q\\).'
+    },
+    {
+        id: 10,
+        vorderseite: 'Kathetensatz des Euklid',
+        rueckseite: 'Im rechtwinkligen Dreieck:<br>\\(a^2 = p \\cdot c\\) und \\(b^2 = q \\cdot c\\), wobei \\(p, q\\) die Hypotenusen­abschnitte unterhalb der jeweiligen Kathete sind.'
+    }
+];
+
+const AUFGABEN = [
+    {
+        id: 1, level: 1, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Rechtwinkliges Dreieck: \\(a = 3\\), \\(b = 4\\). Wie lang ist die Hypotenuse \\(c\\)?',
+        loesung: 5, toleranz: 0,
+        tipp: 'Pythagoras: \\(c = \\sqrt{a^2 + b^2}\\).',
+        loesungsweg: '\\(c = \\sqrt{9 + 16} = \\sqrt{25} = 5\\). (Klassisches 3-4-5-Dreieck.)'
+    },
+    {
+        id: 2, level: 1, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Welches der folgenden Tripel bildet ein <strong>rechtwinkliges</strong> Dreieck?',
+        optionen: ['\\(2, 3, 4\\)', '\\(5, 12, 13\\)', '\\(6, 7, 8\\)', '\\(1, 2, 3\\)'],
+        korrekt: 1,
+        tipp: 'Prüfe \\(a^2 + b^2 = c^2\\).',
+        loesungsweg: '\\(5^2 + 12^2 = 25 + 144 = 169 = 13^2\\) ✓.'
+    },
+    {
+        id: 3, level: 2, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Hypotenuse \\(c = 13\\) cm, Kathete \\(a = 5\\) cm. Berechne die andere Kathete \\(b\\) (in cm).',
+        loesung: 12, toleranz: 0,
+        tipp: '\\(b = \\sqrt{c^2 - a^2}\\).',
+        loesungsweg: '\\(b = \\sqrt{169 - 25} = \\sqrt{144} = 12\\) cm.'
+    },
+    {
+        id: 4, level: 2, typ: 'numerisch',
+        frage: 'Diagonale eines Rechtecks mit \\(a = 6\\) cm, \\(b = 8\\) cm (in cm)?',
+        loesung: 10, toleranz: 0,
+        tipp: 'Pythagoras im Rechteck.',
+        loesungsweg: '\\(d = \\sqrt{36+64} = 10\\) cm.'
+    },
+    {
+        id: 5, level: 3, typ: 'numerisch',
+        frage: 'Eine Leiter ist 5 m lang. Wenn sie 1,4 m vom Haus entfernt steht, in welcher Höhe (in m, auf 2 NK) berührt sie die Wand?',
+        loesung: 4.8, toleranz: 0.05,
+        tipp: 'Pythagoras: \\(h = \\sqrt{5^2 - 1{,}4^2}\\).',
+        loesungsweg: '\\(h = \\sqrt{25 - 1{,}96} = \\sqrt{23{,}04} = 4{,}8\\) m.'
+    },
+    {
+        id: 6, level: 3, typ: 'numerisch',
+        frage: 'Quadrat mit Seitenlänge 6 cm. Wie lang ist seine Diagonale (in cm, auf 2 NK)?',
+        loesung: 8.49, toleranz: 0.05,
+        tipp: '\\(d = a \\sqrt{2}\\).',
+        loesungsweg: '\\(d = 6 \\sqrt{2} \\approx 6 \\cdot 1{,}4142 \\approx 8{,}49\\) cm.'
+    },
+    {
+        id: 7, level: 4, typ: 'numerisch',
+        frage: 'Raumdiagonale eines Quaders mit \\(a = 3\\), \\(b = 4\\), \\(c = 12\\) (auf 2 NK)?',
+        loesung: 13, toleranz: 0.05,
+        tipp: '\\(d = \\sqrt{a^2+b^2+c^2}\\).',
+        loesungsweg: '\\(d = \\sqrt{9+16+144} = \\sqrt{169} = 13\\).'
+    },
+    {
+        id: 8, level: 4, typ: 'numerisch',
+        frage: '1. Strahlensatz: \\(\\overline{SA_1} = 4\\), \\(\\overline{SA_2} = 10\\), \\(\\overline{SB_1} = 6\\). Wie lang ist \\(\\overline{SB_2}\\)?',
+        loesung: 15, toleranz: 0,
+        tipp: '\\(SA_1/SA_2 = SB_1/SB_2 \\Rightarrow SB_2 = SB_1 \\cdot SA_2 / SA_1\\).',
+        loesungsweg: '\\(SB_2 = 6 \\cdot 10 / 4 = 15\\).'
+    },
+    {
+        id: 9, level: 5, typ: 'numerisch',
+        frage: 'Ein Mast wirft einen 12 m langen Schatten. Eine 1,80 m große Person daneben wirft 1,5 m Schatten. Wie hoch ist der Mast (in m)?',
+        loesung: 14.4, toleranz: 0.1,
+        tipp: 'Strahlensatz: \\(\\dfrac{h_{Mast}}{12} = \\dfrac{1{,}80}{1{,}5}\\).',
+        loesungsweg: '\\(h = 12 \\cdot \\dfrac{1{,}80}{1{,}5} = 12 \\cdot 1{,}2 = 14{,}4\\) m.'
+    },
+    {
+        id: 10, level: 5, typ: 'numerisch',
+        frage: 'Höhensatz: Hypotenusen­abschnitte \\(p = 4\\) cm, \\(q = 9\\) cm. Wie lang ist die Höhe \\(h\\) auf die Hypotenuse (in cm)?',
+        loesung: 6, toleranz: 0,
+        tipp: '\\(h^2 = p \\cdot q = 36\\).',
+        loesungsweg: '\\(h = \\sqrt{4 \\cdot 9} = \\sqrt{36} = 6\\) cm.'
+    },
+    {
+        id: 11, level: 6, typ: 'numerisch',
+        frage: 'Gerade Pyramide mit quadratischer Grundfläche (Seitenlänge \\(a = 6\\) cm) und Höhe \\(h = 4\\) cm (über dem Mittelpunkt der Grundfläche). Wie lang ist die <strong>Seitenkante</strong> \\(s\\) (in cm, auf 2 NK)?',
+        loesung: 5.83, toleranz: 0.05,
+        tipp: 'Im rechtwinkligen Dreieck Höhe–halbe Diagonale–Seitenkante gilt \\(s^2 = h^2 + (d/2)^2\\). Diagonale: \\(d = a\\sqrt{2}\\).',
+        loesungsweg: '\\(d = 6\\sqrt{2}\\), also \\(d/2 = 3\\sqrt{2}\\) und \\((d/2)^2 = 18\\). Damit \\(s = \\sqrt{h^2 + (d/2)^2} = \\sqrt{16 + 18} = \\sqrt{34} \\approx 5{,}83\\) cm.'
+    },
+    {
+        id: 12, level: 6, typ: 'numerisch',
+        frage: 'Gleichschenkliges Dreieck mit Basis \\(c = 10\\) cm und Schenkel \\(a = 13\\) cm. Wie hoch ist es (Höhe auf die Basis, in cm)?',
+        loesung: 12, toleranz: 0.05,
+        tipp: 'Halbiere die Basis, Pythagoras im halben Dreieck: \\(h^2 = a^2 - (c/2)^2\\).',
+        loesungsweg: '\\(h = \\sqrt{13^2 - 5^2} = \\sqrt{169 - 25} = \\sqrt{144} = 12\\) cm.'
+    }
+];
+</script>
+<script src="../engine.js"></script>
+<script src="../cards.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

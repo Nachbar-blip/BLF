@@ -1,0 +1,489 @@
+/* BLF Mathe — gemeinsames Styling für Übersicht und Trainer */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --blf-primary: #2563eb;
+    --blf-secondary: #1e40af;
+    --blf-correct: #16a34a;
+    --blf-wrong: #dc2626;
+    --blf-hilfsmittelfrei: #f59e0b;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, var(--blf-primary) 0%, var(--blf-secondary) 100%);
+    min-height: 100vh;
+    color: #1a1a2e;
+    padding: 20px;
+}
+
+.container, .blf-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* ===== Übersicht ===== */
+.uebersicht-header {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 24px;
+}
+.uebersicht-header h1 {
+    font-size: 2.2rem;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    margin-bottom: 4px;
+}
+.uebersicht-header p {
+    font-size: 1rem;
+    opacity: 0.92;
+}
+
+.themen-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+}
+
+.thema-karte {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+    padding: 18px;
+    text-decoration: none;
+    color: #1f2937;
+    transition: transform 0.15s, box-shadow 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-left: 5px solid var(--blf-primary);
+}
+.thema-karte:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.22);
+}
+
+.thema-karte .nr {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--blf-secondary);
+    letter-spacing: 0.5px;
+}
+.thema-karte h3 {
+    font-size: 1.1rem;
+    line-height: 1.3;
+    color: #1f2937;
+}
+.thema-karte .meta {
+    font-size: 0.82rem;
+    color: #64748b;
+    display: flex;
+    gap: 12px;
+    margin-top: 4px;
+}
+.thema-karte .fortschritt-bar {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+.thema-karte .fortschritt-bar > div {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blf-primary), var(--blf-secondary));
+    transition: width 0.4s;
+}
+
+.info-box {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: #fff;
+    margin-bottom: 20px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+.info-box strong { font-weight: 700; }
+
+/* ===== Trainer-Header ===== */
+.trainer-header {
+    text-align: center;
+    color: #fff;
+    margin-bottom: 18px;
+}
+.trainer-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 6px;
+}
+.back-link {
+    display: inline-block;
+    color: rgba(255,255,255,0.78);
+    text-decoration: none;
+    font-size: 0.88rem;
+    transition: color 0.2s;
+}
+.back-link:hover { color: #fff; }
+
+/* ===== Modus-Toggle ===== */
+.modus-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 999px;
+    padding: 4px;
+    margin: 0 auto 18px;
+    max-width: 380px;
+}
+.modus-btn {
+    flex: 1;
+    padding: 9px 16px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: rgba(255,255,255,0.85);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 40px;
+}
+.modus-btn.active {
+    background: #fff;
+    color: var(--blf-secondary);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* ===== Level-Anzeige (Üben) ===== */
+.level-anzeige {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+.level-segment {
+    width: 40px;
+    height: 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.25);
+    transition: background 0.4s, box-shadow 0.4s;
+}
+.level-segment.filled { background: rgba(255,255,255,0.55); }
+.level-segment.active {
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255,255,255,0.5);
+}
+.level-label {
+    text-align: center;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.82rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+/* ===== Stats ===== */
+.stats-leiste {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    color: #fff;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+}
+.stat-richtig { color: #86efac; font-weight: 600; }
+.stat-falsch { color: #fca5a5; font-weight: 600; }
+.stat-fortschritt { opacity: 0.85; }
+
+/* ===== Aufgabe- und Karteikarte ===== */
+.karte {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.18);
+    padding: 28px;
+    min-height: 220px;
+    margin-bottom: 16px;
+}
+
+.aufgabe-text, .karte-frage {
+    font-size: 1.18rem;
+    color: #1f2937;
+    text-align: center;
+    line-height: 1.7;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+}
+.karte-frage { font-weight: 600; }
+
+.hilfsmittelfrei-badge {
+    display: inline-block;
+    background: var(--blf-hilfsmittelfrei);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ===== Eingabe ===== */
+.eingabe-bereich {
+    text-align: center;
+    margin-top: 18px;
+}
+#antwortInput {
+    width: 100%;
+    max-width: 400px;
+    font-size: 1.15rem;
+    padding: 12px 16px;
+    border: 2px solid #d1d5db;
+    border-radius: 12px;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+#antwortInput:focus {
+    border-color: var(--blf-primary);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+#antwortInput.input-correct { border-color: var(--blf-correct); background: #f0fdf4; }
+#antwortInput.input-wrong { border-color: var(--blf-wrong); background: #fef2f2; }
+
+.btn {
+    display: inline-block;
+    padding: 11px 28px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blf-primary), var(--blf-secondary));
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    min-height: 44px;
+}
+.btn:hover { transform: scale(1.03); box-shadow: 0 5px 18px rgba(0,0,0,0.18); }
+.btn:active { transform: scale(0.98); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.btn-pruefen { margin-top: 10px; }
+
+/* ===== MC ===== */
+.mc-bereich {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 18px;
+}
+.mc-option {
+    width: 100%;
+    text-align: left;
+    padding: 13px 18px;
+    font-size: 1rem;
+    background: #fff;
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    color: #1f2937;
+    line-height: 1.5;
+    min-height: 44px;
+}
+.mc-option:hover { border-color: var(--blf-primary); background: rgba(37,99,235,0.04); }
+.mc-option.selected { border-color: var(--blf-primary); background: rgba(37,99,235,0.08); }
+.mc-option.mc-correct { border-color: var(--blf-correct); background: #dcfce7; color: #166534; }
+.mc-option.mc-wrong { border-color: var(--blf-wrong); background: #fee2e2; color: #991b1b; }
+
+/* ===== Feedback ===== */
+.feedback {
+    margin-top: 18px;
+    border-radius: 14px;
+    padding: 20px;
+    animation: slideUp 0.3s ease-out;
+}
+.feedback.richtig { background: #dcfce7; border: 2px solid var(--blf-correct); }
+.feedback.falsch { background: #fee2e2; border: 2px solid var(--blf-wrong); }
+.feedback-icon {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.feedback.richtig .feedback-icon { color: #166534; }
+.feedback.falsch .feedback-icon { color: #991b1b; }
+.loesungsweg {
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 14px;
+    margin-top: 10px;
+    line-height: 1.7;
+    color: #374151;
+    font-size: 0.93rem;
+}
+.feedback .btn { margin-top: 14px; }
+
+/* ===== Tipp ===== */
+.btn-tipp {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 7px 18px;
+    background: rgba(255,255,255,0.2);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 18px;
+    color: #fff;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    min-height: 36px;
+}
+.btn-tipp:hover { background: rgba(255,255,255,0.3); }
+.tipp-box {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+    padding: 13px 16px;
+    border-radius: 0 10px 10px 0;
+    margin-top: 12px;
+    line-height: 1.6;
+    color: #92400e;
+    font-size: 0.93rem;
+}
+
+/* ===== Karteikarten ===== */
+.karte-flip-hint {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.82rem;
+    margin-top: 14px;
+}
+.karte-rueckseite {
+    border-top: 1px dashed #d1d5db;
+    margin-top: 16px;
+    padding-top: 16px;
+    font-size: 1.02rem;
+    color: #1f2937;
+    line-height: 1.65;
+    text-align: left;
+}
+.karte-rueckseite strong { color: var(--blf-secondary); }
+
+.karten-bewertung {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+.btn-bewertung {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: 2px solid;
+    background: #fff;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    min-height: 44px;
+    transition: all 0.15s;
+}
+.btn-bewertung.wiederholen { border-color: var(--blf-wrong); color: var(--blf-wrong); }
+.btn-bewertung.wiederholen:hover { background: var(--blf-wrong); color: #fff; }
+.btn-bewertung.kannich { border-color: var(--blf-correct); color: var(--blf-correct); }
+.btn-bewertung.kannich:hover { background: var(--blf-correct); color: #fff; }
+
+.karten-fortschritt {
+    display: flex;
+    justify-content: space-around;
+    color: #fff;
+    font-size: 0.85rem;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.box-stat {
+    background: rgba(255,255,255,0.15);
+    padding: 5px 12px;
+    border-radius: 8px;
+}
+
+.alle-fertig {
+    text-align: center;
+    padding: 30px 20px;
+    color: #1f2937;
+}
+.alle-fertig h2 {
+    color: var(--blf-secondary);
+    margin-bottom: 12px;
+    font-size: 1.4rem;
+}
+.alle-fertig p { margin-bottom: 10px; line-height: 1.6; }
+.alle-fertig .btn { margin-top: 14px; }
+
+/* ===== Footer ===== */
+.btn-reset {
+    display: block;
+    margin: 24px auto 0;
+    padding: 7px 16px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 14px;
+    color: rgba(255,255,255,0.65);
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    min-height: 36px;
+}
+.btn-reset:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+.keyboard-hint {
+    text-align: center;
+    color: rgba(255,255,255,0.5);
+    font-size: 0.74rem;
+    margin-top: 12px;
+}
+.keyboard-hint kbd {
+    background: rgba(255,255,255,0.15);
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-family: inherit;
+    font-size: 0.74rem;
+}
+
+/* ===== Animations ===== */
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Tastatur-Fokus sichtbar ===== */
+.btn:focus-visible,
+.btn-pruefen:focus-visible,
+.mc-option:focus-visible,
+.btn-bewertung:focus-visible,
+.modus-btn:focus-visible,
+.btn-tipp:focus-visible,
+.btn-reset:focus-visible,
+.thema-karte:focus-visible,
+.back-link:focus-visible {
+    outline: 3px solid #fde047;
+    outline-offset: 2px;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+    body { padding: 12px; }
+    .uebersicht-header h1 { font-size: 1.6rem; }
+    .trainer-header h1 { font-size: 1.4rem; }
+    .karte { padding: 20px; min-height: 180px; }
+    .aufgabe-text, .karte-frage { font-size: 1.05rem; }
+    .level-segment { width: 28px; }
+    .keyboard-hint { display: none; }
+    .modus-btn { font-size: 0.88rem; padding: 8px 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .feedback, .alle-fertig { animation: none; }
+    .btn:hover, .thema-karte:hover { transform: none; }
+}

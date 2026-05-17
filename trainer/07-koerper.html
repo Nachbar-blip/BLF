@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Körperberechnung — BLF Mathe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="blf-container" id="app"></div>
+
+<script>
+const THEMA_KEY = '07-koerper';
+const THEMA_CONFIG = { name: 'Körperberechnung', nummer: '07', bereich: 'geometrie' };
+
+const KARTEN = [
+    {
+        id: 1, hilfsmittelfrei: true,
+        vorderseite: 'Quader: Volumen und Oberfläche',
+        rueckseite: '\\(V = a \\cdot b \\cdot c\\)<br>\\(O = 2(ab + ac + bc)\\)<br>(Würfel: \\(a = b = c\\), also \\(V = a^3\\), \\(O = 6a^2\\).)'
+    },
+    {
+        id: 2, hilfsmittelfrei: true,
+        vorderseite: 'Prisma — Volumen und Oberfläche',
+        rueckseite: '\\(V = G \\cdot h\\) (Grundfläche · Höhe)<br>\\(O = 2G + M\\) (zwei Grundflächen + Mantel)<br>\\(M = u \\cdot h\\) (Umfang Grundfläche · Höhe).'
+    },
+    {
+        id: 3,
+        vorderseite: 'Pyramide — Volumen',
+        rueckseite: '\\(V = \\dfrac{1}{3} \\cdot G \\cdot h\\) (Grundfläche · Höhe / 3).<br>Gilt für jede Pyramide, egal welche Grundfläche.'
+    },
+    {
+        id: 4,
+        vorderseite: 'Pyramide (quadratische Grundfläche \\(a\\)) — Mantel & Oberfläche',
+        rueckseite: 'Mantel: 4 gleichschenklige Dreiecke. Höhe eines Dreiecks: <strong>Seitenhöhe</strong> \\(h_s = \\sqrt{h^2 + (a/2)^2}\\).<br>\\(M = 4 \\cdot \\dfrac{a \\cdot h_s}{2} = 2 \\cdot a \\cdot h_s\\)<br>\\(O = a^2 + M\\).'
+    },
+    {
+        id: 5, hilfsmittelfrei: true,
+        vorderseite: 'Zylinder — Volumen und Oberfläche',
+        rueckseite: '\\(V = \\pi r^2 \\cdot h\\)<br>\\(O = 2 \\pi r^2 + 2 \\pi r h\\) (zwei Kreise + Mantel)<br>Mantel abgewickelt: Rechteck mit Höhe \\(h\\) und Breite \\(2\\pi r\\).'
+    },
+    {
+        id: 6,
+        vorderseite: 'Kegel — Volumen',
+        rueckseite: '\\(V = \\dfrac{1}{3} \\pi r^2 h\\) (genau wie Pyramide — 1/3 von "Zylindervolumen").'
+    },
+    {
+        id: 7,
+        vorderseite: 'Kegel — Mantel & Oberfläche',
+        rueckseite: '<strong>Mantellinie</strong> \\(s = \\sqrt{r^2 + h^2}\\) (Pythagoras).<br>\\(M = \\pi r s\\)<br>\\(O = \\pi r^2 + \\pi r s = \\pi r (r + s)\\).'
+    },
+    {
+        id: 8,
+        vorderseite: 'Kugel — Volumen und Oberfläche',
+        rueckseite: '\\(V = \\dfrac{4}{3} \\pi r^3\\)<br>\\(O = 4 \\pi r^2\\)<br><em>Merksatz: Kugelvolumen = ⁴/₃-Volumen eines Würfels-Kegels.</em>'
+    },
+    {
+        id: 9, hilfsmittelfrei: true,
+        vorderseite: 'Einheitenumrechnung Volumen',
+        rueckseite: '\\(1\\,\\text{m}^3 = 1000\\,\\text{dm}^3 = 1\\,000\\,000\\,\\text{cm}^3\\)<br>\\(1\\,\\text{dm}^3 = 1\\,\\text{Liter}\\)<br>\\(1\\,\\text{cm}^3 = 1\\,\\text{ml}\\).'
+    },
+    {
+        id: 10, hilfsmittelfrei: true,
+        vorderseite: 'Kreis: Umfang & Flächeninhalt',
+        rueckseite: '\\(u = 2 \\pi r = \\pi d\\)<br>\\(A = \\pi r^2\\)'
+    }
+];
+
+const AUFGABEN = [
+    {
+        id: 1, level: 1, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Würfel mit Kantenlänge \\(a = 4\\) cm. Volumen in cm³?',
+        loesung: 64, toleranz: 0,
+        tipp: '\\(V = a^3\\).',
+        loesungsweg: '\\(V = 4^3 = 64\\) cm³.'
+    },
+    {
+        id: 2, level: 1, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Quader mit \\(a = 5\\) cm, \\(b = 3\\) cm, \\(c = 2\\) cm. Volumen in cm³?',
+        loesung: 30, toleranz: 0,
+        tipp: '\\(V = a \\cdot b \\cdot c\\).',
+        loesungsweg: '\\(V = 5 \\cdot 3 \\cdot 2 = 30\\) cm³.'
+    },
+    {
+        id: 3, level: 2, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Würfel mit \\(a = 5\\) cm. Oberfläche in cm²?',
+        loesung: 150, toleranz: 0,
+        tipp: '\\(O = 6 a^2\\).',
+        loesungsweg: '\\(O = 6 \\cdot 25 = 150\\) cm².'
+    },
+    {
+        id: 4, level: 2, typ: 'numerisch',
+        frage: 'Zylinder mit \\(r = 4\\) cm und \\(h = 10\\) cm. Volumen in cm³ (auf 1 NK, \\(\\pi \\approx 3{,}1416\\))?',
+        loesung: 502.7, toleranz: 0.5,
+        tipp: '\\(V = \\pi r^2 h\\).',
+        loesungsweg: '\\(V = \\pi \\cdot 16 \\cdot 10 = 160\\pi \\approx 502{,}7\\) cm³.'
+    },
+    {
+        id: 5, level: 3, typ: 'numerisch',
+        frage: 'Pyramide: quadratische Grundfläche mit \\(a = 6\\) cm, Höhe \\(h = 10\\) cm. Volumen in cm³?',
+        loesung: 120, toleranz: 0.5,
+        tipp: '\\(V = \\tfrac{1}{3} \\cdot G \\cdot h\\), \\(G = a^2 = 36\\).',
+        loesungsweg: '\\(V = \\tfrac{1}{3} \\cdot 36 \\cdot 10 = 120\\) cm³.'
+    },
+    {
+        id: 6, level: 3, typ: 'numerisch',
+        frage: 'Kegel mit \\(r = 3\\) cm, \\(h = 4\\) cm. Volumen in cm³ (auf 2 NK)?',
+        loesung: 37.7, toleranz: 0.2,
+        tipp: '\\(V = \\tfrac{1}{3} \\pi r^2 h\\).',
+        loesungsweg: '\\(V = \\tfrac{1}{3} \\pi \\cdot 9 \\cdot 4 = 12\\pi \\approx 37{,}70\\) cm³.'
+    },
+    {
+        id: 7, level: 4, typ: 'numerisch',
+        frage: 'Kugel mit \\(r = 6\\) cm. Volumen in cm³ (auf 1 NK)?',
+        loesung: 904.8, toleranz: 1,
+        tipp: '\\(V = \\tfrac{4}{3} \\pi r^3\\).',
+        loesungsweg: '\\(V = \\tfrac{4}{3} \\pi \\cdot 216 = 288 \\pi \\approx 904{,}78\\) cm³.'
+    },
+    {
+        id: 8, level: 4, typ: 'numerisch',
+        frage: 'Kegel mit \\(r = 5\\) cm, \\(h = 12\\) cm. Mantellinie \\(s\\) in cm?',
+        loesung: 13, toleranz: 0,
+        tipp: '\\(s = \\sqrt{r^2 + h^2}\\) (Pythagoras im Kegelschnitt).',
+        loesungsweg: '\\(s = \\sqrt{25 + 144} = \\sqrt{169} = 13\\) cm.'
+    },
+    {
+        id: 9, level: 5, typ: 'numerisch',
+        frage: 'Zylinder soll genau \\(1\\) Liter (\\(= 1000\\) cm³) fassen bei \\(r = 5\\) cm. Wie hoch muss er sein in cm (auf 2 NK)?',
+        loesung: 12.73, toleranz: 0.1,
+        tipp: '\\(h = V / (\\pi r^2)\\).',
+        loesungsweg: '\\(h = 1000 / (\\pi \\cdot 25) = 40/\\pi \\approx 12{,}73\\) cm.'
+    },
+    {
+        id: 10, level: 5, typ: 'numerisch',
+        frage: 'Pyramide (quadratische Grundfläche, \\(a = 8\\) cm, Höhe \\(h = 6\\) cm). Berechne die Seitenhöhe \\(h_s\\) in cm.',
+        loesung: 7.21, toleranz: 0.05,
+        tipp: '\\(h_s = \\sqrt{h^2 + (a/2)^2}\\).',
+        loesungsweg: '\\(h_s = \\sqrt{36 + 16} = \\sqrt{52} \\approx 7{,}21\\) cm.'
+    },
+    {
+        id: 11, level: 6, typ: 'numerisch',
+        frage: 'Pyramide aus Aufgabe 10 (\\(a=8\\), \\(h=6\\)): Berechne die <strong>Mantelfläche</strong> in cm² (auf 1 NK).',
+        loesung: 115.4, toleranz: 0.5,
+        tipp: '\\(M = 2 \\cdot a \\cdot h_s\\) mit \\(h_s = \\sqrt{52}\\).',
+        loesungsweg: '\\(M = 2 \\cdot 8 \\cdot \\sqrt{52} \\approx 16 \\cdot 7{,}211 \\approx 115{,}4\\) cm².'
+    },
+    {
+        id: 12, level: 6, typ: 'numerisch',
+        frage: 'Eine Kugel hat das gleiche Volumen wie ein Würfel mit \\(a = 10\\) cm. Wie groß ist der Kugelradius in cm (auf 2 NK)?',
+        loesung: 6.20, toleranz: 0.05,
+        tipp: '\\(\\tfrac{4}{3}\\pi r^3 = 1000 \\Rightarrow r^3 = 750/\\pi\\).',
+        loesungsweg: '\\(r^3 = \\dfrac{3 \\cdot 1000}{4\\pi} = \\dfrac{750}{\\pi} \\approx 238{,}73\\). \\(r \\approx \\sqrt[3]{238{,}73} \\approx 6{,}20\\) cm.'
+    }
+];
+</script>
+<script src="../engine.js"></script>
+<script src="../cards.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>

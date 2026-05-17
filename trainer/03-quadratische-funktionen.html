@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quadratische Funktionen — BLF Mathe</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
+    <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="blf-container" id="app"></div>
+
+<script>
+const THEMA_KEY = '03-quadratische-funktionen';
+const THEMA_CONFIG = { name: 'Quadratische Funktionen', nummer: '03', bereich: 'funktionen' };
+
+const KARTEN = [
+    {
+        id: 1, hilfsmittelfrei: true,
+        vorderseite: 'Allgemeine Form & Normalform einer quadratischen Funktion',
+        rueckseite: '<strong>Allgemein:</strong> \\(f(x) = ax^2 + bx + c\\) (\\(a \\neq 0\\)).<br><strong>Normalform:</strong> \\(f(x) = x^2 + px + q\\) (Spezialfall \\(a = 1\\)).<br>Graph: <strong>Parabel</strong>.'
+    },
+    {
+        id: 2, hilfsmittelfrei: true,
+        vorderseite: 'Scheitelpunktform — Was sagt sie aus?',
+        rueckseite: '\\(f(x) = a(x - d)^2 + e\\)<br>Scheitelpunkt: \\(S(d|e)\\).<br>\\(a > 0\\): nach oben geöffnet · \\(a < 0\\): nach unten · \\(|a| > 1\\): schmaler · \\(|a| < 1\\): breiter.'
+    },
+    {
+        id: 3, hilfsmittelfrei: true,
+        vorderseite: 'pq-Formel — wann und wie?',
+        rueckseite: 'Für \\(x^2 + px + q = 0\\):<br>\\(x_{1,2} = -\\dfrac{p}{2} \\pm \\sqrt{\\left(\\dfrac{p}{2}\\right)^2 - q}\\)<br>Diskriminante \\(D = (p/2)^2 - q\\) entscheidet über die Lösungsanzahl.'
+    },
+    {
+        id: 4, hilfsmittelfrei: true,
+        vorderseite: 'abc-Formel (Mitternachtsformel)',
+        rueckseite: 'Für \\(ax^2 + bx + c = 0\\):<br>\\(x_{1,2} = \\dfrac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\\)<br>Diskriminante \\(D = b^2 - 4ac\\).'
+    },
+    {
+        id: 5, hilfsmittelfrei: true,
+        vorderseite: 'Anzahl der Nullstellen aus der Diskriminante',
+        rueckseite: '\\(D > 0\\): <strong>zwei</strong> Nullstellen<br>\\(D = 0\\): <strong>eine</strong> (doppelte) Nullstelle<br>\\(D < 0\\): <strong>keine</strong> reelle Nullstelle.'
+    },
+    {
+        id: 6, hilfsmittelfrei: true,
+        vorderseite: 'Scheitelpunkt aus \\(f(x) = x^2 + px + q\\) (ohne Formel)',
+        rueckseite: '<strong>Quadratische Ergänzung:</strong><br>\\(x^2 + px + q = \\left(x + \\dfrac{p}{2}\\right)^2 - \\left(\\dfrac{p}{2}\\right)^2 + q\\)<br>Scheitel: \\(S\\!\\left(-\\dfrac{p}{2}\\,\\Big|\\,q - \\dfrac{p^2}{4}\\right)\\).'
+    },
+    {
+        id: 7, hilfsmittelfrei: true,
+        vorderseite: 'Faktorzerlegung bei zwei Nullstellen \\(x_1, x_2\\)',
+        rueckseite: '\\(f(x) = a(x - x_1)(x - x_2)\\)<br>Beispiel: Nullstellen 2 und 5, \\(a = 1\\) → \\(f(x) = (x-2)(x-5) = x^2 - 7x + 10\\).'
+    },
+    {
+        id: 8, hilfsmittelfrei: true,
+        vorderseite: 'Symmetrieachse der Parabel \\(f(x) = ax^2 + bx + c\\)',
+        rueckseite: '\\(x = -\\dfrac{b}{2a}\\) (vertikale Gerade durch den Scheitel).'
+    },
+    {
+        id: 9,
+        vorderseite: 'Sachaufgabe: Wurfparabel \\(h(t) = -\\tfrac{1}{2}g t^2 + v_0 t + h_0\\)',
+        rueckseite: 'Höhe als Funktion der Zeit. <strong>Maximalhöhe:</strong> Scheitel der Parabel.<br><strong>Aufschlagzeit:</strong> Nullstelle (\\(h(t) = 0\\)).<br>\\(g \\approx 9{,}81\\,\\text{m/s}^2\\).'
+    },
+    {
+        id: 10, hilfsmittelfrei: true,
+        vorderseite: 'Schnittpunkt von Parabel und Gerade',
+        rueckseite: 'Gleichsetzen \\(f(x) = g(x)\\) → quadratische Gleichung lösen.<br>0, 1 oder 2 Schnittpunkte möglich (entspricht Diskriminante).'
+    }
+];
+
+const AUFGABEN = [
+    {
+        id: 1, level: 1, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Berechne \\(f(3)\\) für \\(f(x) = x^2 - 2\\).',
+        loesung: 7, toleranz: 0,
+        tipp: '\\(3^2 - 2\\).',
+        loesungsweg: '\\(f(3) = 9 - 2 = 7\\).'
+    },
+    {
+        id: 2, level: 1, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Wo liegt der Scheitelpunkt von \\(f(x) = (x-3)^2 + 4\\)?',
+        optionen: ['\\(S(3|4)\\)', '\\(S(-3|4)\\)', '\\(S(3|-4)\\)', '\\(S(-3|-4)\\)'],
+        korrekt: 0,
+        tipp: 'Scheitelpunktform \\(a(x-d)^2 + e\\) → \\(S(d|e)\\). Achtung: \\(x - 3\\) bedeutet \\(d = +3\\).',
+        loesungsweg: 'In \\(f(x) = (x-3)^2 + 4\\) ist \\(d = 3\\), \\(e = 4\\), also \\(S(3|4)\\).'
+    },
+    {
+        id: 3, level: 2, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Bestimme die <strong>positive</strong> Nullstelle von \\(f(x) = x^2 - 9\\).',
+        loesung: 3, toleranz: 0,
+        tipp: '\\(x^2 = 9\\).',
+        loesungsweg: '\\(x^2 - 9 = 0 \\Rightarrow x = \\pm 3\\). Positive Lösung: 3.'
+    },
+    {
+        id: 4, level: 2, typ: 'mc', hilfsmittelfrei: true,
+        frage: 'Wie viele Nullstellen hat \\(f(x) = x^2 + 4\\)?',
+        optionen: ['Zwei', 'Eine', 'Keine', 'Hängt von \\(x\\) ab'],
+        korrekt: 2,
+        tipp: '\\(x^2 \\geq 0\\) für alle reellen \\(x\\), \\(+4\\) hebt es weiter an.',
+        loesungsweg: '\\(x^2 + 4 = 0 \\Rightarrow x^2 = -4\\) — keine reelle Lösung.'
+    },
+    {
+        id: 5, level: 3, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Löse mit pq-Formel: \\(x^2 - 5x + 6 = 0\\). Gib die <strong>kleinere</strong> Lösung an.',
+        loesung: 2, toleranz: 0,
+        tipp: '\\(p = -5\\), \\(q = 6\\). \\(p/2 = -2{,}5\\).',
+        loesungsweg: '\\(x = 2{,}5 \\pm \\sqrt{6{,}25 - 6} = 2{,}5 \\pm 0{,}5\\). \\(x_1 = 2\\), \\(x_2 = 3\\).'
+    },
+    {
+        id: 6, level: 3, typ: 'numerisch', hilfsmittelfrei: true,
+        frage: 'Löse mit pq-Formel: \\(x^2 + 4x - 12 = 0\\). Gib die <strong>positive</strong> Lösung an.',
+        loesung: 2, toleranz: 0,
+        tipp: '\\(p = 4\\), \\(q = -12\\). \\(p/2 = 2\\), \\((p/2)^2 - q = 4 + 12 = 16\\).',
+        loesungsweg: '\\(x = -2 \\pm \\sqrt{16} = -2 \\pm 4\\). \\(x_1 = 2\\), \\(x_2 = -6\\).'
+    },
+    {
+        id: 7, level: 4, typ: 'numerisch',
+        frage: 'Scheitelpunkt von \\(f(x) = x^2 - 6x + 5\\). Gib die <strong>y-Koordinate</strong> des Scheitels an.',
+        loesung: -4, toleranz: 0,
+        tipp: 'Quadratische Ergänzung: \\(x^2 - 6x + 9 = (x-3)^2\\).',
+        loesungsweg: '\\(f(x) = (x-3)^2 - 9 + 5 = (x-3)^2 - 4\\). Scheitel \\(S(3|-4)\\), y-Koordinate \\(-4\\).'
+    },
+    {
+        id: 8, level: 4, typ: 'mc',
+        frage: 'Welche Funktion hat Nullstellen bei \\(x_1 = -2\\) und \\(x_2 = 5\\)?',
+        optionen: [
+            '\\(f(x) = (x+2)(x-5)\\)',
+            '\\(f(x) = (x-2)(x+5)\\)',
+            '\\(f(x) = (x+2)(x+5)\\)',
+            '\\(f(x) = (x-2)(x-5)\\)'
+        ],
+        korrekt: 0,
+        tipp: 'Faktorzerlegung: \\((x - x_1)(x - x_2)\\), also \\((x - (-2))(x - 5)\\).',
+        loesungsweg: '\\(f(x) = (x - (-2))(x - 5) = (x+2)(x-5)\\).'
+    },
+    {
+        id: 9, level: 5, typ: 'numerisch',
+        frage: 'Ein Ball wird abgeworfen: \\(h(t) = -5t^2 + 20t + 1{,}80\\) (m, s). Wann erreicht er die <strong>maximale Höhe</strong> (in Sekunden)?',
+        loesung: 2, toleranz: 0.01,
+        tipp: 'Scheitel der Parabel: \\(t_S = -\\dfrac{b}{2a}\\) mit \\(a = -5\\), \\(b = 20\\).',
+        loesungsweg: '\\(t_S = -\\dfrac{20}{2 \\cdot (-5)} = -\\dfrac{20}{-10} = 2\\) s.'
+    },
+    {
+        id: 10, level: 5, typ: 'numerisch',
+        frage: 'Berechne mit abc-Formel: positive Lösung von \\(2x^2 - 7x + 3 = 0\\).',
+        loesung: 3, toleranz: 0,
+        tipp: '\\(a = 2\\), \\(b = -7\\), \\(c = 3\\). Diskriminante \\(49 - 24 = 25\\).',
+        loesungsweg: '\\(x = \\dfrac{7 \\pm 5}{4}\\). \\(x_1 = 3\\), \\(x_2 = 0{,}5\\).'
+    },
+    {
+        id: 11, level: 6, typ: 'numerisch',
+        frage: 'Eine Parabel hat den Scheitel \\(S(1|-4)\\) und geht durch \\(P(3|0)\\). Bestimme den Streckfaktor \\(a\\) (in \\(f(x) = a(x-1)^2 - 4\\)).',
+        loesung: 1, toleranz: 0,
+        tipp: 'Setze \\(P\\) ein: \\(0 = a(3-1)^2 - 4\\).',
+        loesungsweg: '\\(0 = a \\cdot 4 - 4 \\Rightarrow a = 1\\).'
+    },
+    {
+        id: 12, level: 6, typ: 'numerisch',
+        frage: 'Eine Parabel \\(f(x) = -0{,}224 x^2 + 3{,}5\\) (Wurfbahn eines Basketballs, vereinfachte BLF-2024-Aufgabe). Berechne die <strong>positive</strong> Nullstelle (Reichweite in m, auf 2 Nachkommastellen).',
+        loesung: 3.95, toleranz: 0.05,
+        tipp: '\\(-0{,}224 x^2 + 3{,}5 = 0 \\Rightarrow x^2 = 3{,}5/0{,}224\\).',
+        loesungsweg: '\\(x^2 = \\dfrac{3{,}5}{0{,}224} \\approx 15{,}625\\). \\(x \\approx \\pm 3{,}95\\), positiv: \\(3{,}95\\) m.'
+    }
+];
+</script>
+<script src="../engine.js"></script>
+<script src="../cards.js"></script>
+<script src="../app.js"></script>
+</body>
+</html>
