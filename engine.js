@@ -38,6 +38,7 @@
     let feedbackShown = false;
     let container = null;
     let aufgabenList = [];
+    let lastShownId = null;
 
     // ── State ──────────────────────────────────────────────
     function loadState() {
@@ -84,6 +85,12 @@
             state.answered = state.answered.filter(id => !levelIds.includes(id));
             saveState();
             available = levelTasks;
+        }
+        // Direkte Wiederholung der zuletzt gezeigten Aufgabe vermeiden,
+        // solange es eine Alternative gibt (z. B. nach Level-Down/Up).
+        if (available.length > 1 && lastShownId !== null) {
+            const ohneLetzte = available.filter(a => a.id !== lastShownId);
+            if (ohneLetzte.length > 0) available = ohneLetzte;
         }
         return available[Math.floor(Math.random() * available.length)];
     }
@@ -192,6 +199,7 @@
 
     function renderAufgabe(aufgabe) {
         currentAufgabe = aufgabe;
+        lastShownId = aufgabe.id;
         feedbackShown = false;
 
         container.innerHTML = htmlLevelAnzeige() + htmlStats() + htmlAufgabe(aufgabe);
